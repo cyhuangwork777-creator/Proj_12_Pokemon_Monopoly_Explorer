@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import './App.css';
 import { POKEMON_DATABASE, MAP_LOCATIONS, GAME_EVENTS } from './data/pokemonData';
 
@@ -16,6 +16,10 @@ function App() {
   const [gold, setGold] = useState(300);
   const [steps, setSteps] = useState(0);
   const [playerPos, setPlayerPos] = useState(0);
+  
+  // 背景音樂控制 (Ref 與靜音狀態，預設靜音以配合瀏覽器自動播放限制)
+  const bgmRef = useRef(null);
+  const [isMuted, setIsMuted] = useState(true);
   
   // 背包道具
   const [bag, setBag] = useState({
@@ -45,6 +49,55 @@ function App() {
   const [rollValue, setRollValue] = useState(1);
   const [isMoving, setIsMoving] = useState(false);
   const [remainingSteps, setRemainingSteps] = useState(0);
+
+  // --- 音樂播放控制 Effects ---
+  
+  // 1. 初始化與同步靜音狀態
+  useEffect(() => {
+    if (!bgmRef.current) {
+      bgmRef.current = new Audio();
+      bgmRef.current.loop = true;
+      bgmRef.current.volume = 0.22; // 設定舒適的 22% 音量
+    }
+    bgmRef.current.muted = isMuted;
+  }, [isMuted]);
+
+  // 2. 根據當前遊戲畫面 (activeModal) 與狀態自動流暢切換音軌
+  useEffect(() => {
+    if (!bgmRef.current) return;
+
+    // 以 const 宣告純函數，徹底避免 Let 無效賦值的警告
+    const getTargetSrc = () => {
+      if (activeModal === 'partnerSelect') return '/audio/title_theme.m4a';
+      if (activeModal === 'battle') return '/audio/battle_theme.m4a';
+      if (activeModal === 'center') return '/audio/center_theme.m4a';
+      if (activeModal === 'victory') return '/audio/title_theme.m4a';
+      return '/audio/map_theme.m4a';
+    };
+    const targetSrc = getTargetSrc();
+
+    // 安全解析當前音訊 URL 路徑，使用無變數 catch 語法消滅 unused-vars 警告
+    const getCurrentSrcPath = () => {
+      try {
+        return bgmRef.current.src ? new URL(bgmRef.current.src).pathname : '';
+      } catch {
+        return '';
+      }
+    };
+    const currentSrcPath = getCurrentSrcPath();
+
+    if (currentSrcPath !== targetSrc) {
+      bgmRef.current.src = targetSrc;
+      bgmRef.current.load();
+    }
+
+    // 當選定初始夥伴（有夥伴）或是處於選定畫面時，自動嘗試播放
+    if (partner || activeModal === 'partnerSelect') {
+      bgmRef.current.play().catch((err) => {
+        console.log("自動播放受限，等待玩家與網頁互動點擊以啟動音樂:", err.message);
+      });
+    }
+  }, [activeModal, partner]);
 
   // --- 遊戲邏輯與行為 ---
 
@@ -291,6 +344,28 @@ function App() {
         </div>
         
         <div className="player-stats">
+          {/* 精美音樂開關按鈕 */}
+          <button 
+            className="stat-badge neon-button" 
+            style={{ 
+              padding: '6px 12px', 
+              fontSize: '12px', 
+              cursor: 'pointer',
+              borderColor: isMuted ? 'rgba(255,255,255,0.1)' : 'var(--neon-blue)',
+              color: isMuted ? 'var(--text-secondary)' : 'var(--neon-blue)',
+              background: isMuted ? 'rgba(255,255,255,0.02)' : 'rgba(0,210,255,0.1)'
+            }}
+            onClick={() => {
+              setIsMuted(prev => !prev);
+              // 主動觸發一次 play() 以繞過瀏覽器的 autoplay 互動鎖定
+              if (bgmRef.current && isMuted) {
+                bgmRef.current.play().catch(() => {});
+              }
+            }}
+          >
+            {isMuted ? '🔇 音樂：關' : '🔊 音樂：開'}
+          </button>
+
           <div className="stat-badge gold" title="冒險金幣，可用於友好商店與訓練場">
             💰 <span style={{ marginLeft: '4px' }}>{gold}</span> G
           </div>
