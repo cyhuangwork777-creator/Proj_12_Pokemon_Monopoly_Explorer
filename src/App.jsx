@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import './App.css';
 import { POKEMON_DATABASE, MAP_LOCATIONS, GAME_EVENTS, TRAINERS_DATABASE } from './data/pokemonData';
 
@@ -44,6 +44,9 @@ function App() {
   // 正在進行進化的寶可夢數據 (用於光芒進化特效 Overlay)
   const [evolvingData, setEvolvingData] = useState(null);
 
+  // 檢測本地是否有已儲存的遊戲進度
+  const [hasSave, setHasSave] = useState(false);
+
   // --- 視窗狀態控制 ---
   const [activeModal, setActiveModal] = useState('partnerSelect'); // partnerSelect, battle, mart, gym, center, event, victory
   
@@ -61,7 +64,7 @@ function App() {
 
   // --- 音樂播放控制 Effects ---
   
-  // 1. 初始化與同步靜音狀態
+  // 1. 初始化與同步靜音狀態，並檢測是否有存檔
   useEffect(() => {
     if (!bgmRef.current) {
       bgmRef.current = new Audio();
@@ -69,6 +72,14 @@ function App() {
       bgmRef.current.volume = 0.22; // 設定舒適的 22% 音量
     }
     bgmRef.current.muted = isMuted;
+
+    // 檢測本地是否有已儲存的遊戲進度
+    const save = localStorage.getItem('pokemon_monopoly_save');
+    if (save) {
+      setTimeout(() => {
+        setHasSave(true);
+      }, 0);
+    }
   }, [isMuted]);
 
   // 2. 根據當前遊戲畫面 (activeModal) 與狀態自動流暢切換音軌
@@ -434,6 +445,75 @@ function App() {
     setEvolvingData(null);
   };
 
+  // 10. 儲存遊戲進度 (Manual & Auto Save)
+  const saveGame = useCallback((isManual = false) => {
+    // 為了確保主力寶可夢個體數值準確無誤，在儲存前先將當前的 partner 狀態同步回 myPokemons 隊伍列表中
+    let currentPokemons = myPokemons;
+    if (partner) {
+      currentPokemons = myPokemons.map(p => p.id === partner.id ? partner : p);
+    }
+
+    const saveData = {
+      gold,
+      steps,
+      playerPos,
+      bag,
+      caughtIds,
+      selectedTrainer,
+      myPokemons: currentPokemons,
+      partner,
+      saveTime: new Date().toISOString()
+    };
+
+    localStorage.setItem('pokemon_monopoly_save', JSON.stringify(saveData));
+    setTimeout(() => {
+      setHasSave(true);
+    }, 0);
+
+    if (isManual) {
+      alert(`💾 遊戲進度已成功儲存！\n儲存時間: ${new Date().toLocaleTimeString()}`);
+    }
+  }, [gold, steps, playerPos, bag, caughtIds, selectedTrainer, myPokemons, partner]);
+
+  // 12. 智慧型自動存檔 (Auto-Save)
+  useEffect(() => {
+    // 只有當玩家已經選定初始角色 (partner 有值) 且不在移動或擲骰子中，且當前沒有打開彈窗時，才進行自動存檔
+    if (partner && !isMoving && !isRolling && !activeModal) {
+      saveGame(false);
+    }
+  }, [gold, steps, playerPos, bag, caughtIds, partner, myPokemons, isMoving, isRolling, activeModal, saveGame]);
+
+  // 11. 載入遊戲進度 (Load Save)
+  const loadGame = () => {
+    const saveStr = localStorage.getItem('pokemon_monopoly_save');
+    if (!saveStr) {
+      alert('📂 目前沒有任何存檔進度！');
+      return;
+    }
+
+    try {
+      const saveData = JSON.parse(saveStr);
+      
+      // 還原所有的 React 遊戲狀態
+      if (saveData.gold !== undefined) setGold(saveData.gold);
+      if (saveData.steps !== undefined) setSteps(saveData.steps);
+      if (saveData.playerPos !== undefined) setPlayerPos(saveData.playerPos);
+      if (saveData.bag !== undefined) setBag(saveData.bag);
+      if (saveData.caughtIds !== undefined) setCaughtIds(saveData.caughtIds);
+      if (saveData.selectedTrainer !== undefined) setSelectedTrainer(saveData.selectedTrainer);
+      if (saveData.myPokemons !== undefined) setMyPokemons(saveData.myPokemons);
+      if (saveData.partner !== undefined) setPartner(saveData.partner);
+
+      // 關鍵！跳過初始選角 Modal，無縫進入大地圖冒險！
+      setActiveModal(null);
+
+      alert('📂 遊戲進度已成功載入！續接您的傳奇訓練師之旅！');
+    } catch (err) {
+      console.error('載入存檔時出錯：', err);
+      alert('📂 載入存檔失敗，存檔數據可能已損壞。');
+    }
+  };
+
   // --- 背包與狀態變更幫手 ---
   const updateBag = (itemKey, amount) => {
     setBag(prev => ({
@@ -524,6 +604,44 @@ function App() {
             }}
           >
             {isMuted ? '🔇 音樂：關' : '🔊 音樂：開'}
+          </button>
+
+          {/* 💾 儲存進度按鈕 */}
+          {partner && (
+            <button 
+              className="stat-badge neon-button" 
+              style={{ 
+                padding: '6px 12px', 
+                fontSize: '12px', 
+                cursor: 'pointer',
+                borderColor: 'var(--neon-green)',
+                color: 'var(--neon-green)',
+                background: 'rgba(57, 255, 20, 0.03)'
+              }}
+              onClick={() => saveGame(true)}
+              title="將目前的冒險進度安全手動儲存至本機"
+            >
+              💾 存檔
+            </button>
+          )}
+
+          {/* 📂 載入進度按鈕 */}
+          <button 
+            className="stat-badge neon-button" 
+            style={{ 
+              padding: '6px 12px', 
+              fontSize: '12px', 
+              cursor: hasSave ? 'pointer' : 'not-allowed',
+              borderColor: hasSave ? 'var(--neon-yellow)' : 'rgba(255,255,255,0.06)',
+              color: hasSave ? 'var(--neon-yellow)' : 'var(--text-muted)',
+              background: hasSave ? 'rgba(255, 238, 0, 0.03)' : 'rgba(255,255,255,0.01)',
+              opacity: hasSave ? 1 : 0.4
+            }}
+            disabled={!hasSave}
+            onClick={loadGame}
+            title={hasSave ? "載入上一次儲存的傳奇進度" : "目前本機無任何存檔"}
+          >
+            📂 讀檔
           </button>
 
           <div className="stat-badge gold" title="冒險金幣，可用於友好商店與訓練場">
