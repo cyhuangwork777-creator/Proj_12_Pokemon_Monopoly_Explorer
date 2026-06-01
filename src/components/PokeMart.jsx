@@ -1,30 +1,9 @@
 const PokeMart = ({ gold, bag, updateBag, updateGold, onClose }) => {
   const shopItems = [
     {
-      key: 'pokeball',
-      name: '普通精靈球',
-      desc: '基礎的寶可夢球，捕捉機率一般。',
-      price: 50,
-      icon: '🔴'
-    },
-    {
-      key: 'greatBall',
-      name: '超級球',
-      desc: '性能更好的寶可夢球，捕捉率提升 1.6 倍。',
-      price: 120,
-      icon: '🔵'
-    },
-    {
-      key: 'ultraBall',
-      name: '高級球',
-      desc: '非常超群的寶可夢球，捕捉率大增 2.6 倍。',
-      price: 250,
-      icon: '🟡'
-    },
-    {
       key: 'potion',
       name: '回復傷藥',
-      desc: '在對戰中能為夥伴回復 60 點體力值。',
+      desc: '在對戰中能為出戰夥伴回復 60 點體力值。',
       price: 80,
       icon: '🧪'
     }

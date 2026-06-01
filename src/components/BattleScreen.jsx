@@ -4,10 +4,7 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
   const [wildHp, setWildHp] = useState(wildPokemon.baseHp);
   const [battleLog, setBattleLog] = useState(`野生的 ${wildPokemon.name} 出現了！`);
   const [isMyTurn, setIsMyTurn] = useState(true);
-  const [isThrowing, setIsThrowing] = useState(false);
-  const [isShaking, setIsShaking] = useState(false);
-  const [, setShakeCount] = useState(0); // 移除 unused var 警告，使用簡短更新
-  const [battleState, setBattleState] = useState('fighting'); // fighting, throwing, caught, failed, run
+  const [battleState, setBattleState] = useState('fighting'); // fighting, caught, failed, run
 
   // 野生寶可夢回合反擊 (用 useCallback 封裝，解決 Math.random 靜態 purity 檢查問題)
   const wildPokemonAttack = useCallback(() => {
@@ -56,9 +53,8 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
 
       if (nextHp <= 0) {
         setTimeout(() => {
-          setBattleLog(`${wildPokemon.name} 體力不支倒下了！趕快趁現在丟精靈球捕捉，或者將其擊敗！`);
-          setWildHp(1); // 留 1 滴血供玩家捕捉
-          setIsMyTurn(true);
+          setBattleLog(`成功擊敗了野生的 ${wildPokemon.name}！並將其收服！🎉`);
+          setBattleState('caught');
         }, 1200);
       } else {
         setTimeout(() => {
@@ -94,71 +90,6 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
     }, 1200);
   }, [isMyTurn, battleState, bag.potion, partner.hp, partner.maxHp, partner.name, updateBag, healPartner, wildPokemonAttack]);
 
-  // 結算捕捉機率 (用 useCallback 封裝)
-  const calculateCatch = useCallback((ballType) => {
-    const ballMultiplier = ballType === 'pokeball' ? 1.0 : ballType === 'greatBall' ? 1.6 : 2.6;
-    const hpFactor = 1.0 + (1.0 - wildHp / wildPokemon.baseHp) * 2.0;
-    const finalRate = wildPokemon.catchRate * ballMultiplier * hpFactor;
-    const roll = Math.random();
-
-    console.log(`捕捉計算：基礎=${wildPokemon.catchRate}, 球種倍率=${ballMultiplier}, HP加成=${hpFactor.toFixed(2)}, 最終機率=${(finalRate*100).toFixed(1)}%, 隨機數=${roll.toFixed(3)}`);
-
-    if (roll < finalRate) {
-      setBattleLog(`太棒了！成功收服 ${wildPokemon.name}！🎉`);
-      setBattleState('caught');
-    } else {
-      setBattleLog(`哎呀！${wildPokemon.name} 從精靈球裡掙脫了！`);
-      setBattleState('fighting');
-      
-      setTimeout(() => {
-        wildPokemonAttack();
-      }, 1000);
-    }
-  }, [wildHp, wildPokemon, wildPokemonAttack]);
-
-  const getBallName = (type) => {
-    if (type === 'pokeball') return '普通精靈球';
-    if (type === 'greatBall') return '超級球';
-    if (type === 'ultraBall') return '高級球';
-    return '精靈球';
-  };
-
-  // 投擲精靈球 (用 useCallback 封裝)
-  const handleThrowBall = useCallback((ballType) => {
-    if (!isMyTurn || battleState !== 'fighting' || bag[ballType] <= 0) return;
-    setIsMyTurn(false);
-    updateBag(ballType, -1);
-    setBattleState('throwing');
-    setIsThrowing(true);
-    setBattleLog(`投出了「${getBallName(ballType)}」！`);
-
-    // 遞迴搖晃精靈球 (移入 handleThrowBall 閉包內部，消滅依賴項警告與 TDZ 錯誤)
-    function shakeLoop(count, ballType) {
-      if (count <= 3) {
-        setTimeout(() => {
-          setShakeCount(count + 1);
-          if (count === 1) setBattleLog(`搖晃中. . . 咻`);
-          if (count === 2) setBattleLog(`搖晃中. . . 咻！緊張時刻！`);
-          
-          shakeLoop(count + 1, ballType);
-        }, 600);
-      } else {
-        setTimeout(() => {
-          setIsShaking(false);
-          calculateCatch(ballType);
-        }, 600);
-      }
-    }
-
-    setTimeout(() => {
-      setIsThrowing(false);
-      setIsShaking(true);
-      setShakeCount(1);
-      setBattleLog(`搖晃中. . .`);
-      shakeLoop(1, ballType);
-    }, 800);
-  }, [isMyTurn, battleState, bag, updateBag, calculateCatch]);
-
   return (
     <div className="overlay-screen">
       <div className="screen-card battle-screen-card glass-panel">
@@ -177,7 +108,7 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
           {/* 我方夥伴 */}
           <div className="battle-pokemon mine">
             <div className="pokemon-status-card">
-              <div style={{ fontWeight: 800, fontSize: '13px', display: 'flex', justifycontent: 'space-between' }}>
+              <div style={{ fontWeight: 800, fontSize: '13px', display: 'flex', justifyContent: 'space-between' }}>
                 <span>{partner.name}</span>
                 <span style={{ color: 'var(--neon-yellow)' }}>Lv.{partner.level}</span>
               </div>
@@ -198,22 +129,34 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
 
           {/* 野生寶可夢 */}
           <div className="battle-pokemon wild" style={{ position: 'relative' }}>
-            {/* 投球與搖晃特效 */}
-            {battleState === 'throwing' && (
-              <div className="pokeball-throw-container">
-                <div className={`pokeball-sprite ${isThrowing ? 'is-throwing' : ''} ${isShaking ? 'is-shaking' : ''}`} />
-              </div>
-            )}
-
-            {/* 若已被收服，則不顯示寶可夢圖片，只顯示精靈球 */}
+            {/* 若已被收服，則顯示收服成功的金色發光徽章 */}
             {battleState === 'caught' ? (
-              <div className="pokeball-throw-container">
-                <div className="pokeball-sprite" style={{ transform: 'scale(1.2)' }} />
+              <div className="glass-panel" style={{ 
+                padding: '20px 10px', 
+                border: '2px solid var(--neon-green)',
+                background: 'rgba(57, 255, 20, 0.05)',
+                borderRadius: '12px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '10px',
+                boxShadow: '0 0 15px rgba(57, 255, 20, 0.3)',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}>
+                <img 
+                  src={wildPokemon.sprite} 
+                  alt={wildPokemon.name} 
+                  style={{ width: '100px', height: '100px', filter: 'drop-shadow(0 0 10px rgba(57, 255, 20, 0.5))', objectFit: 'contain' }}
+                />
+                <span style={{ fontSize: '13px', fontWeight: 900, color: 'var(--neon-green)' }}>
+                  💚 收服成功！已加入夥伴陣容
+                </span>
               </div>
             ) : (
               <>
                 <div className="pokemon-status-card">
-                  <div style={{ fontWeight: 800, fontSize: '13px', display: 'flex', justifycontent: 'space-between' }}>
+                  <div style={{ fontWeight: 800, fontSize: '13px', display: 'flex', justifyContent: 'space-between' }}>
                     <span>{wildPokemon.name}</span>
                     <span style={{ color: wildPokemon.color }}>{wildPokemon.type}屬性</span>
                   </div>
@@ -235,10 +178,7 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
                 <img 
                   src={wildPokemon.sprite} 
                   alt={wildPokemon.name} 
-                  style={{ 
-                    transition: 'opacity 0.5s ease',
-                    opacity: battleState === 'throwing' && isShaking ? 0.3 : 1 
-                  }}
+                  style={{ transition: 'opacity 0.5s ease', objectFit: 'contain' }}
                 />
               </>
             )}
@@ -270,40 +210,16 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
                 ))}
               </div>
 
-              {/* 使用精靈球或道具 */}
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginTop: '8px' }}>投擲精靈球 / 使用藥水：</div>
-              <div className="action-buttons">
+              {/* 使用藥水或道具 */}
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginTop: '8px' }}>使用輔助道具：</div>
+              <div className="action-buttons" style={{ gridTemplateColumns: '1fr' }}>
                 <button 
                   className="neon-button"
-                  style={{ borderSecondary: '1px solid #ff2a2a', color: '#ff4b4b', padding: '8px 12px', fontSize: '12px' }}
-                  disabled={!isMyTurn || bag.pokeball <= 0}
-                  onClick={() => handleThrowBall('pokeball')}
-                >
-                  🔴 普通球 ({bag.pokeball})
-                </button>
-                <button 
-                  className="neon-button"
-                  style={{ borderSecondary: '1px solid #2196f3', color: '#3fa9f5', padding: '8px 12px', fontSize: '12px' }}
-                  disabled={!isMyTurn || bag.greatBall <= 0}
-                  onClick={() => handleThrowBall('greatBall')}
-                >
-                  🔵 超級球 ({bag.greatBall})
-                </button>
-                <button 
-                  className="neon-button"
-                  style={{ borderSecondary: '1px solid var(--neon-yellow)', color: 'var(--neon-yellow)', padding: '8px 12px', fontSize: '12px' }}
-                  disabled={!isMyTurn || bag.ultraBall <= 0}
-                  onClick={() => handleThrowBall('ultraBall')}
-                >
-                  🟡 高級球 ({bag.ultraBall})
-                </button>
-                <button 
-                  className="neon-button"
-                  style={{ borderSecondary: '1px solid var(--neon-green)', color: 'var(--neon-green)', padding: '8px 12px', fontSize: '12px' }}
+                  style={{ borderColor: 'var(--neon-green)', color: 'var(--neon-green)', padding: '8px 12px', fontSize: '12px' }}
                   disabled={!isMyTurn || bag.potion <= 0}
                   onClick={handleUsePotion}
                 >
-                  🧪 傷藥 ({bag.potion})
+                  🧪 傷藥回復 60 HP (剩餘 {bag.potion} 瓶)
                 </button>
               </div>
 
@@ -333,7 +249,7 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
           {/* 戰鬥失敗結算畫面 */}
           {battleState === 'failed' && (
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
-              <p style={{ color: 'var(--neon-red)', fontSize: '13px', marginBottom: '10px' }}>夥伴全部失去了戰鬥意志，你損失了 100 金幣，並將被護送到寶可夢中心治療。</p>
+              <p style={{ color: 'var(--neon-red)', fontSize: '13px', marginBottom: '10px' }}>夥伴全部失去了戰鬥意志，你損失了一半的金幣，並將被護送到寶可夢中心治療。</p>
               <button 
                 className="neon-button" 
                 style={{ borderColor: 'var(--neon-red)', color: 'var(--neon-red)' }}

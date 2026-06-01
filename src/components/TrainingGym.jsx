@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const TrainingGym = ({ gold, partner, updateGold, trainPartner, onClose }) => {
+const TrainingGym = ({ gold, partner, updateGold, trainPartner, handleLevelUp, onClose }) => {
   const [successMsg, setSuccessMsg] = useState('');
 
   const trainingOptions = [
@@ -49,14 +49,76 @@ const TrainingGym = ({ gold, partner, updateGold, trainPartner, onClose }) => {
 
   return (
     <div className="overlay-screen">
-      <div className="screen-card glass-panel" style={{ maxWidth: '500px' }}>
+      <div className="screen-card glass-panel" style={{ maxWidth: '520px' }}>
         <div className="panel-header">
           <span style={{ color: 'var(--neon-purple)' }}>🏋️ 寶可夢訓練場 (Training Gym)</span>
           <span className="shop-item-price">💰 {gold} G</span>
         </div>
 
-        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '10px' }}>
-          歡迎來到道館訓練場！在這裡你可以付費聘請專業教練，為你的夥伴 <b>{partner.name}</b> (Lv.{partner.level}) 進行特訓！
+        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '15px', textAlign: 'left' }}>
+          歡迎來到道館訓練場！在這裡你可以為你的夥伴 <b>{partner.name}</b> (Lv.{partner.level}) 進行突破與基礎特訓！
+        </div>
+
+        {/* 限界突破！等級提升特訓 */}
+        <div style={{
+          background: partner.exp >= partner.maxExp ? 'linear-gradient(135deg, rgba(255,238,0,0.08), rgba(255,152,0,0.12))' : 'rgba(255,255,255,0.01)',
+          border: partner.exp >= partner.maxExp ? '1px solid var(--neon-yellow)' : '1px dashed rgba(255,255,255,0.1)',
+          borderRadius: '14px',
+          padding: '16px',
+          marginBottom: '20px',
+          textAlign: 'left',
+          boxShadow: partner.exp >= partner.maxExp ? '0 0 15px rgba(255, 238, 0, 0.25)' : 'none',
+          transition: 'all 0.3s ease'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <span style={{ fontWeight: 900, fontSize: '13px', color: partner.exp >= partner.maxExp ? 'var(--neon-yellow)' : '#fff' }}>
+              🌟 限界突破！等級提升 (Level Up)
+            </span>
+            <span style={{ fontSize: '12px', fontWeight: 800, color: 'var(--neon-yellow)' }}>150 金幣</span>
+          </div>
+          <p style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '12px' }}>
+            當出戰夥伴的經驗值 (EXP) 蓄滿後，在此特訓可提升等級！<br />
+            <b>屬性大幅提升：等級 +1，最大 HP +30，基礎 ATK +6！滿足條件將自動觸發進化！</b>
+          </p>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '4px' }}>
+                <span>特訓經驗值 (EXP)</span>
+                <span>{partner.exp} / {partner.maxExp}</span>
+              </div>
+              <div className="hp-bar-container" style={{ background: 'rgba(255,255,255,0.05)', height: '10px', borderRadius: '5px' }}>
+                <div 
+                  className="hp-bar-fill" 
+                  style={{ 
+                    width: `${Math.min(100, (partner.exp / partner.maxExp) * 100)}%`,
+                    background: partner.exp >= partner.maxExp ? 'linear-gradient(90deg, var(--neon-yellow), #ff9800)' : 'var(--neon-blue)',
+                    boxShadow: partner.exp >= partner.maxExp ? '0 0 10px var(--neon-yellow)' : 'none',
+                    borderRadius: '5px'
+                  }}
+                />
+              </div>
+            </div>
+
+            <button
+              className="neon-button"
+              style={{ 
+                padding: '8px 16px', 
+                fontSize: '12px', 
+                borderColor: partner.exp >= partner.maxExp ? 'var(--neon-yellow)' : 'rgba(255,255,255,0.1)',
+                color: partner.exp >= partner.maxExp ? 'var(--neon-yellow)' : 'var(--text-muted)',
+                background: partner.exp >= partner.maxExp ? 'rgba(255, 238, 0, 0.1)' : 'transparent',
+                cursor: partner.exp >= partner.maxExp ? 'pointer' : 'not-allowed'
+              }}
+              disabled={partner.exp < partner.maxExp || gold < 150}
+              onClick={() => {
+                handleLevelUp();
+                onClose();
+              }}
+            >
+              升級特訓
+            </button>
+          </div>
         </div>
 
         {/* 當前夥伴屬性展示 */}
@@ -65,7 +127,7 @@ const TrainingGym = ({ gold, partner, updateGold, trainPartner, onClose }) => {
           border: '1px solid rgba(255, 255, 255, 0.05)',
           borderRadius: '12px',
           padding: '12px',
-          marginBottom: '15px',
+          marginBottom: '20px',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           gap: '10px',
@@ -96,10 +158,11 @@ const TrainingGym = ({ gold, partner, updateGold, trainPartner, onClose }) => {
 
         {/* 特訓選項 */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted)', textAlign: 'left' }}>付費基礎潛能特訓：</div>
           {trainingOptions.map((option) => {
             const canAfford = gold >= option.cost;
             return (
-              <div key={option.key} className="shop-item-row">
+              <div key={option.key} className="shop-item-row" style={{ marginTop: '0px' }}>
                 <div style={{ textAlign: 'left', flex: 1 }}>
                   <div style={{ fontWeight: 800, fontSize: '13px', color: '#fff' }}>{option.name}</div>
                   <div className="shop-item-desc" style={{ marginTop: '2px' }}>{option.desc}</div>
@@ -126,7 +189,7 @@ const TrainingGym = ({ gold, partner, updateGold, trainPartner, onClose }) => {
           style={{ width: '100%', marginTop: '20px', borderColor: 'var(--text-muted)', color: 'var(--text-secondary)' }}
           onClick={onClose}
         >
-          特訓結束
+          離開訓練場
         </button>
       </div>
     </div>

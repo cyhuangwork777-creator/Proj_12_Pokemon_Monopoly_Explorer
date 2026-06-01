@@ -18,7 +18,7 @@ const getGridCoords = (id) => {
   return { gridColumn: 1, gridRow: 1 };
 };
 
-const GameBoard = ({ playerPos, children }) => {
+const GameBoard = ({ playerPos, isMoving, trainerAvatar, children }) => {
   return (
     <div className="board-wrapper">
       {MAP_LOCATIONS.map((cell) => {
@@ -45,8 +45,16 @@ const GameBoard = ({ playerPos, children }) => {
             <span className="cell-desc">{cell.desc}</span>
 
             {isPlayerHere && (
-              <div className="player-token">
-                <span className="player-token-inner">🎒</span>
+              <div className={`player-token ${isMoving ? 'jumping' : ''}`}>
+                {trainerAvatar ? (
+                  <img 
+                    src={trainerAvatar} 
+                    alt="Player" 
+                    className="player-token-avatar"
+                  />
+                ) : (
+                  <span className="player-token-inner">🎒</span>
+                )}
               </div>
             )}
           </div>
