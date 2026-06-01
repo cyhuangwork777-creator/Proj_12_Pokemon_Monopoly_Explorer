@@ -47,6 +47,9 @@ function App() {
   // 檢測本地是否有已儲存的遊戲進度
   const [hasSave, setHasSave] = useState(false);
 
+  // 多槽位存讀檔相關狀態
+  const [saveLoadType, setSaveLoadType] = useState(null); // null, 'saveSelect', 'loadSelect'
+
   // --- 視窗狀態控制 ---
   const [activeModal, setActiveModal] = useState('partnerSelect'); // partnerSelect, battle, mart, gym, center, event, victory
   
@@ -73,9 +76,13 @@ function App() {
     }
     bgmRef.current.muted = isMuted;
 
-    // 檢測本地是否有已儲存的遊戲進度
-    const save = localStorage.getItem('pokemon_monopoly_save');
-    if (save) {
+    // 檢測本地多個手動存檔槽位是否有已儲存的進度
+    const hasSlot1 = localStorage.getItem('pokemon_monopoly_save_slot_1');
+    const hasSlot2 = localStorage.getItem('pokemon_monopoly_save_slot_2');
+    const hasSlot3 = localStorage.getItem('pokemon_monopoly_save_slot_3');
+    const hasLegacy = localStorage.getItem('pokemon_monopoly_save');
+    
+    if (hasSlot1 || hasSlot2 || hasSlot3 || hasLegacy) {
       setTimeout(() => {
         setHasSave(true);
       }, 0);
@@ -445,8 +452,10 @@ function App() {
     setEvolvingData(null);
   };
 
-  // 10. 儲存遊戲進度 (Manual & Auto Save)
-  const saveGame = useCallback((isManual = false) => {
+  // 10. 儲存遊戲進度 (Manual Save)
+  const saveGame = useCallback((slotId, isManual = false) => {
+    if (!slotId) return;
+
     // 為了確保主力寶可夢個體數值準確無誤，在儲存前先將當前的 partner 狀態同步回 myPokemons 隊伍列表中
     let currentPokemons = myPokemons;
     if (partner) {
@@ -465,27 +474,24 @@ function App() {
       saveTime: new Date().toISOString()
     };
 
-    localStorage.setItem('pokemon_monopoly_save', JSON.stringify(saveData));
+    localStorage.setItem(`pokemon_monopoly_save_${slotId}`, JSON.stringify(saveData));
+    
     setTimeout(() => {
       setHasSave(true);
     }, 0);
 
     if (isManual) {
-      alert(`💾 遊戲進度已成功儲存！\n儲存時間: ${new Date().toLocaleTimeString()}`);
+      alert(`💾 遊戲進度已成功儲存至槽位 ${slotId.replace('slot_', '')}！\n儲存時間: ${new Date().toLocaleTimeString()}`);
     }
   }, [gold, steps, playerPos, bag, caughtIds, selectedTrainer, myPokemons, partner]);
 
-  // 12. 智慧型自動存檔 (Auto-Save)
-  useEffect(() => {
-    // 只有當玩家已經選定初始角色 (partner 有值) 且不在移動或擲骰子中，且當前沒有打開彈窗時，才進行自動存檔
-    if (partner && !isMoving && !isRolling && !activeModal) {
-      saveGame(false);
-    }
-  }, [gold, steps, playerPos, bag, caughtIds, partner, myPokemons, isMoving, isRolling, activeModal, saveGame]);
-
   // 11. 載入遊戲進度 (Load Save)
-  const loadGame = () => {
-    const saveStr = localStorage.getItem('pokemon_monopoly_save');
+  const loadGame = (slotId) => {
+    if (!slotId) return;
+    const saveStr = slotId === 'legacy'
+      ? localStorage.getItem('pokemon_monopoly_save')
+      : localStorage.getItem(`pokemon_monopoly_save_${slotId}`);
+      
     if (!saveStr) {
       alert('📂 目前沒有任何存檔進度！');
       return;
@@ -504,13 +510,27 @@ function App() {
       if (saveData.myPokemons !== undefined) setMyPokemons(saveData.myPokemons);
       if (saveData.partner !== undefined) setPartner(saveData.partner);
 
-      // 關鍵！跳過初始選角 Modal，無縫進入大地圖冒險！
+      // 關鍵！跳過初始選角 Modal，關閉所有讀取視窗，無縫進入大地圖冒險！
       setActiveModal(null);
+      setSaveLoadType(null);
 
-      alert('📂 遊戲進度已成功載入！續接您的傳奇訓練師之旅！');
+      const slotDisplayName = slotId === 'legacy' ? '歷史舊存檔' : `槽位 ${slotId.replace('slot_', '')}`;
+      alert(`📂 【${slotDisplayName}】的遊戲進度已成功載入！續接您的傳奇訓練師之旅！`);
     } catch (err) {
       console.error('載入存檔時出錯：', err);
       alert('📂 載入存檔失敗，存檔數據可能已損壞。');
+    }
+  };
+
+  // 11.5 讀取槽位資訊 (用於 UI 預覽)
+  const getSlotInfo = (slotId) => {
+    const saveStr = localStorage.getItem(`pokemon_monopoly_save_${slotId}`);
+    if (!saveStr) return null;
+    try {
+      return JSON.parse(saveStr);
+    } catch (e) {
+      console.error(`解析槽位 ${slotId} 失敗`, e);
+      return null;
     }
   };
 
@@ -618,8 +638,8 @@ function App() {
                 color: 'var(--neon-green)',
                 background: 'rgba(57, 255, 20, 0.03)'
               }}
-              onClick={() => saveGame(true)}
-              title="將目前的冒險進度安全手動儲存至本機"
+              onClick={() => setSaveLoadType('saveSelect')}
+              title="將目前的冒險進度安全手動儲存至多個槽位"
             >
               💾 存檔
             </button>
@@ -638,8 +658,8 @@ function App() {
               opacity: hasSave ? 1 : 0.4
             }}
             disabled={!hasSave}
-            onClick={loadGame}
-            title={hasSave ? "載入上一次儲存的傳奇進度" : "目前本機無任何存檔"}
+            onClick={() => setSaveLoadType('loadSelect')}
+            title={hasSave ? "選擇並載入特定槽位的傳奇進度" : "目前本機無任何存檔"}
           >
             📂 讀檔
           </button>
@@ -1189,6 +1209,244 @@ function App() {
                 onClick={confirmEvolution}
               >
                 ⚡ 太棒了！帶著新夥伴啟程冒險！ ⚡
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 9. 多槽位存取檔 Overlay */}
+      {saveLoadType && (
+        <div className="overlay-screen" style={{ background: 'rgba(5, 7, 18, 0.92)', zIndex: 1100 }}>
+          <div className="screen-card glass-panel save-load-card" style={{ maxWidth: '650px', padding: '30px' }}>
+            <div className="pixel-title" style={{ color: saveLoadType === 'saveSelect' ? 'var(--neon-green)' : 'var(--neon-yellow)', fontSize: '24px' }}>
+              {saveLoadType === 'saveSelect' ? '💾 儲存遊戲進度' : '📂 載入遊戲進度'}
+            </div>
+            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '25px', textAlign: 'center' }}>
+              {saveLoadType === 'saveSelect' 
+                ? '請選擇一個手動存檔槽位來保存您當前的冒險成果，這會避免任何背景自動覆蓋。' 
+                : '請選擇一個歷史手動槽位或歷史存檔來還原您之前的精彩冒險旅程。'}
+            </p>
+
+            <div className="slots-container" style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%', maxHeight: '420px', overflowY: 'auto', paddingRight: '5px' }}>
+              {['slot_1', 'slot_2', 'slot_3'].map((slotId) => {
+                const info = getSlotInfo(slotId);
+                const isOccupied = !!info;
+                const trainerColor = info?.selectedTrainer?.color || 'var(--text-muted)';
+                const borderStyle = isOccupied 
+                  ? { borderColor: trainerColor, boxShadow: `0 0 10px ${trainerColor}30` } 
+                  : { borderColor: 'rgba(255,255,255,0.06)' };
+
+                return (
+                  <div 
+                    key={slotId} 
+                    className={`slot-item glass-panel ${isOccupied ? 'occupied' : 'empty'}`}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '15px 20px',
+                      borderRadius: '12px',
+                      transition: 'all 0.3s ease',
+                      border: '1.5px solid',
+                      background: isOccupied ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.01)',
+                      position: 'relative',
+                      ...borderStyle
+                    }}
+                  >
+                    {/* 左側頭像 */}
+                    <div style={{ marginRight: '20px', flexShrink: 0 }}>
+                      {isOccupied && info.selectedTrainer?.avatar ? (
+                        <img 
+                          src={info.selectedTrainer.avatar} 
+                          alt={info.selectedTrainer.name} 
+                          style={{
+                            width: '56px',
+                            height: '56px',
+                            borderRadius: '50%',
+                            border: `2px solid ${trainerColor}`,
+                            boxShadow: `0 0 8px ${trainerColor}50`,
+                            objectFit: 'cover',
+                            background: 'rgba(0,0,0,0.3)'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '56px',
+                          height: '56px',
+                          borderRadius: '50%',
+                          border: '2px dashed rgba(255,255,255,0.15)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '24px',
+                          color: 'var(--text-muted)',
+                          background: 'rgba(255,255,255,0.01)'
+                        }}>
+                          ❓
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 中間存檔中繼資訊 */}
+                    <div style={{ flexGrow: 1, textAlign: 'left' }}>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>槽位 {slotId.replace('slot_', '')}</span>
+                        {isOccupied && (
+                          <span style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '4px', background: `${trainerColor}20`, color: trainerColor, border: `1px solid ${trainerColor}40` }}>
+                            {info.selectedTrainer.name}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {isOccupied ? (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 15px', fontSize: '11px', color: 'var(--text-secondary)' }}>
+                          <div>👤 訓練師: <span style={{ color: trainerColor, fontWeight: 700 }}>{info.selectedTrainer.name}</span></div>
+                          <div>💰 金幣: <span style={{ color: 'var(--neon-yellow)', fontWeight: 700 }}>{info.gold} G</span></div>
+                          <div>🕒 時間: <span style={{ color: 'var(--text-muted)' }}>{new Date(info.saveTime).toLocaleString('zh-TW', { hour12: false })}</span></div>
+                          <div>📖 圖鑑: <span style={{ color: 'var(--neon-blue)', fontWeight: 700 }}>{info.caughtIds?.length || 1} / 20 隻</span></div>
+                        </div>
+                      ) : (
+                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                          ✨ [ 槽位空白 - 可建立新進度 ]
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 右側按鈕動作 */}
+                    <div style={{ marginLeft: '15px', flexShrink: 0 }}>
+                      {saveLoadType === 'saveSelect' ? (
+                        <button 
+                          className="neon-button" 
+                          style={{
+                            padding: '6px 12px',
+                            fontSize: '11px',
+                            borderColor: isOccupied ? 'var(--neon-red)' : 'var(--neon-green)',
+                            color: isOccupied ? 'var(--neon-red)' : 'var(--neon-green)',
+                            background: isOccupied ? 'rgba(255, 7, 58, 0.05)' : 'rgba(57, 255, 20, 0.05)',
+                          }}
+                          onClick={() => {
+                            if (isOccupied) {
+                              if (window.confirm(`⚠️ 您確定要覆蓋 槽位 ${slotId.replace('slot_', '')} 的存檔嗎？\n這將永遠刪除該槽位中【${info.selectedTrainer.name}】的進度。`)) {
+                                saveGame(slotId, true);
+                              }
+                            } else {
+                              saveGame(slotId, true);
+                            }
+                          }}
+                        >
+                          {isOccupied ? '⚠️ 覆蓋存檔' : '💾 儲存至此'}
+                        </button>
+                      ) : (
+                        <button 
+                          className="neon-button" 
+                          disabled={!isOccupied}
+                          style={{
+                            padding: '6px 12px',
+                            fontSize: '11px',
+                            borderColor: isOccupied ? 'var(--neon-yellow)' : 'rgba(255,255,255,0.06)',
+                            color: isOccupied ? 'var(--neon-yellow)' : 'var(--text-muted)',
+                            background: isOccupied ? 'rgba(255, 238, 0, 0.05)' : 'rgba(255,255,255,0.01)',
+                            opacity: isOccupied ? 1 : 0.4,
+                            cursor: isOccupied ? 'pointer' : 'not-allowed'
+                          }}
+                          onClick={() => loadGame(slotId)}
+                        >
+                          📂 載入進度
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Legacy 歷史相容性存檔單獨呈列 */}
+              {saveLoadType === 'loadSelect' && localStorage.getItem('pokemon_monopoly_save') && (() => {
+                const info = getSlotInfo('legacy');
+                if (!info) return null;
+                const trainerColor = info.selectedTrainer?.color || 'var(--neon-purple)';
+                return (
+                  <div 
+                    className="slot-item glass-panel occupied legacy-slot"
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '12px 20px',
+                      borderRadius: '12px',
+                      border: '1.5px dashed var(--neon-purple)',
+                      background: 'rgba(156, 39, 176, 0.02)',
+                      marginTop: '10px'
+                    }}
+                  >
+                    <div style={{ marginRight: '20px', flexShrink: 0 }}>
+                      {info.selectedTrainer?.avatar ? (
+                        <img 
+                          src={info.selectedTrainer.avatar} 
+                          alt={info.selectedTrainer.name} 
+                          style={{
+                            width: '46px',
+                            height: '46px',
+                            borderRadius: '50%',
+                            border: `2px solid var(--neon-purple)`,
+                            objectFit: 'cover'
+                          }}
+                        />
+                      ) : (
+                        <div style={{ width: '46px', height: '46px', borderRadius: '50%', border: '2px dashed rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>❓</div>
+                      )}
+                    </div>
+
+                    <div style={{ flexGrow: 1, textAlign: 'left' }}>
+                      <div style={{ fontSize: '13px', fontWeight: 800, color: 'var(--neon-purple)', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span>⚡ 偵測到歷史舊存檔</span>
+                        <span style={{ fontSize: '9px', padding: '1px 5px', borderRadius: '3px', background: 'rgba(156, 39, 176, 0.15)', color: 'var(--neon-purple)' }}>
+                          舊制相容
+                        </span>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2px 10px', fontSize: '10px', color: 'var(--text-secondary)' }}>
+                        <div>👤 角色: <span style={{ color: trainerColor }}>{info.selectedTrainer?.name || '未知'}</span></div>
+                        <div>💰 金幣: {info.gold} G</div>
+                        <div>🕒 時間: <span style={{ color: 'var(--text-muted)' }}>{info.saveTime ? new Date(info.saveTime).toLocaleString('zh-TW', { hour12: false }) : '未知'}</span></div>
+                        <div>📖 圖鑑: {info.caughtIds?.length || 1} 隻</div>
+                      </div>
+                    </div>
+
+                    <div style={{ marginLeft: '15px', flexShrink: 0 }}>
+                      <button 
+                        className="neon-button" 
+                        style={{
+                          padding: '5px 10px',
+                          fontSize: '10px',
+                          borderColor: 'var(--neon-purple)',
+                          color: 'var(--neon-purple)',
+                          background: 'rgba(156, 39, 176, 0.05)'
+                        }}
+                        onClick={() => {
+                          if (window.confirm('🔮 載入歷史舊存檔將把您帶回先前的旅程。載入後，若要永久保留此進度，請手動儲存至 Slot 1~3！')) {
+                            loadGame('legacy');
+                          }
+                        }}
+                      >
+                        📂 載入 Legacy
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* 底部關閉按鈕 */}
+            <div style={{ marginTop: '25px', width: '100%', display: 'flex', justifyContent: 'center' }}>
+              <button 
+                className="neon-button" 
+                style={{ 
+                  borderColor: 'var(--text-secondary)', 
+                  color: 'var(--text-secondary)',
+                  background: 'rgba(255,255,255,0.02)',
+                  minWidth: '120px'
+                }} 
+                onClick={() => setSaveLoadType(null)}
+              >
+                ❌ 關閉視窗
               </button>
             </div>
           </div>

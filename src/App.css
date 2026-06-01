@@ -779,3 +779,62 @@
   50% { transform: scale(1.25); opacity: 1; }
   100% { transform: scale(1); opacity: 0.6; }
 }
+
+/* ==========================================================================
+   多槽位存取檔樣式 (Multi-Slot Save/Load Modal Styles)
+   ========================================================================== */
+.save-load-card {
+  max-width: 650px;
+  animation: slide-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.slots-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.slots-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 4px;
+}
+
+.slots-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.slots-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.slot-item {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.slot-item.occupied {
+  cursor: default;
+}
+
+.slot-item.occupied:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.slot-item.empty {
+  border-style: dashed !important;
+}
+
+.slot-item.empty:hover {
+  border-color: var(--neon-green) !important;
+  background: rgba(57, 255, 20, 0.02) !important;
+  box-shadow: 0 0 15px rgba(57, 255, 20, 0.15);
+}
+
+.legacy-slot:hover {
+  transform: translateY(-2px);
+  border-style: solid !important;
+  border-color: var(--neon-purple) !important;
+  background: rgba(156, 39, 176, 0.04) !important;
+  box-shadow: 0 0 15px rgba(156, 39, 176, 0.2);
+}
