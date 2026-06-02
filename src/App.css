@@ -200,16 +200,16 @@
   line-height: 1.2;
 }
 
-/* 各類型格子的頂部指示條與發光色 */
-.board-cell[data-type="start"]::before { background: var(--neon-orange); }
-.board-cell[data-type="grass"]::before { background: var(--neon-green); }
-.board-cell[data-type="water"]::before { background: var(--neon-blue); }
-.board-cell[data-type="rock"]::before { background: var(--neon-yellow); }
-.board-cell[data-type="cave"]::before { background: #795548; }
-.board-cell[data-type="mart"]::before { background: #00d2ff; }
-.board-cell[data-type="gym"]::before { background: var(--neon-purple); }
-.board-cell[data-type="center"]::before { background: var(--neon-red); }
-.board-cell[data-type="event"]::before { background: var(--neon-purple); }
+/* 各類型格子的頂部指示條與發光色 (遊戲設計大師極致 HSL 霓虹色彩調配) */
+.board-cell[data-type="start"]::before { background: #ff3d00; } /* 啟航鮮紅 */
+.board-cell[data-type="grass"]::before { background: #00e676; } /* 翠綠草原高地 */
+.board-cell[data-type="water"]::before { background: #00e5ff; } /* 蔚藍海溝海洋 */
+.board-cell[data-type="rock"]::before { background: #ffd700; } /* 黃金巨岩裂谷 */
+.board-cell[data-type="cave"]::before { background: #d500f9; } /* 太晶秘境遺跡 (深紫粉) */
+.board-cell[data-type="mart"]::before { background: #00b0ff; } /* 冒險商店亮藍 */
+.board-cell[data-type="gym"]::before { background: #ff9100; } /* 訓練突破亮橘 */
+.board-cell[data-type="center"]::before { background: #ff1744; } /* 泉水中心極致紅 */
+.board-cell[data-type="event"]::before { background: #e91e63; } /* 隨機命運粉紅 */
 
 /* 棋子標誌 */
 .player-token {
