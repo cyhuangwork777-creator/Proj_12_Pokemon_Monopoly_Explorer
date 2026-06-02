@@ -1639,17 +1639,25 @@
               0 0 25px rgba(0, 210, 255, 0.6) !important;
 }
 
-/* ✍️ 文字排版偏下微縮，完全避開上方立體建築 */
+/* 🏔️ 格子內部黃金比例排版 (上下文字，中央 3D 像素建築完美填滿) */
 .board-cell {
-  overflow: visible !important; /* 關鍵：允許 3D 建築高出格子邊界 */
-  justify-content: flex-end !important;
-  padding: 6px !important;
+  position: relative !important;
+  display: block !important; /* 改為 block 以便絕對定位子元素 */
+  overflow: visible !important; /* 允許 3D 建築高出格子邊界 */
   box-sizing: border-box;
 }
 
+/* ✍️ 文字資訊置頂 (左上角) */
 .cell-info {
-  margin-top: auto;
-  z-index: 3;
+  position: absolute !important;
+  top: 6px !important;
+  left: 6px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 3px !important;
+  z-index: 10 !important; /* 確保在建築物上方，防止遮擋 */
+  max-width: calc(100% - 12px);
 }
 
 .cell-name {
@@ -1658,45 +1666,51 @@
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.98), 
                0 0 3px rgba(0, 0, 0, 0.95) !important;
   font-size: 11px !important;
-}
-
-.cell-desc {
-  color: rgba(255, 255, 255, 0.9) !important;
-  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.98) !important;
-  font-weight: 600 !important;
-  font-size: 9px !important;
-  z-index: 3;
-  margin-top: 1px;
+  white-space: nowrap;
 }
 
 .cell-type-tag {
   font-size: 8px !important;
-  padding: 1px 4px !important;
+  padding: 1px 5px !important;
   border-radius: 3px !important;
   font-weight: 900 !important;
   text-shadow: none !important;
+  margin-top: 0 !important;
 }
 
-/* 🏔️ 格子正上方拔地而起的 3D 像素立體建築圖章 (Z-index 自然遮擋) */
+/* ✍️ 描述文字置底 */
+.cell-desc {
+  position: absolute !important;
+  bottom: 6px !important;
+  left: 6px !important;
+  right: 6px !important;
+  color: rgba(255, 255, 255, 0.9) !important;
+  text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.98) !important;
+  font-weight: 600 !important;
+  font-size: 9px !important;
+  z-index: 10 !important;
+  line-height: 1.2 !important;
+  margin-top: 0 !important;
+}
+
+/* 🏔️ 3D 像素立體建築圖章 (正中、顯著放大、勻稱填滿) */
 .cell-building-sprite {
-  position: absolute;
-  bottom: 38px; /* 底部錨定在格子頂部，上半部凸出到空中 */
-  left: 50%;
-  transform: translateX(-50%);
-  width: 48px;
-  height: 58px;
-  z-index: 5;
+  position: absolute !important;
+  top: 46% !important; /* 垂直居中偏上，留出底部描述空間 */
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  width: 72px !important; /* 顯著放大，原為 48px */
+  height: 82px !important; /* 顯著放大，原為 58px */
+  z-index: 5 !important;
   pointer-events: none;
-  filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.55));
-  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-  transform-origin: bottom center;
+  filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.55));
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
 }
 
 /* 松林、高山、火山等大地景觀尺寸更高大 */
 .building-grass, .building-rock, .building-cave, .building-dojo {
-  width: 56px;
-  height: 70px;
-  bottom: 32px;
+  width: 82px !important; /* 原為 56px */
+  height: 98px !important; /* 原為 70px */
 }
 
 .building-svg {
