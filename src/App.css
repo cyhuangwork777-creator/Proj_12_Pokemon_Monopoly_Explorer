@@ -1454,3 +1454,529 @@
   100% { transform: scale(1.02); filter: brightness(1.15) drop-shadow(0 0 15px rgba(129, 140, 248, 0.3)); }
 }
 
+/* ==========================================================================
+   遊戲設計大師：3D 微縮沙盤與天空視差飄流雲史詩美學系統
+   ========================================================================== */
+
+/* ☁️ 天空漂流雲層 (Parallax Clouds) */
+.floating-clouds-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 15;
+  overflow: hidden;
+}
+
+.floating-cloud {
+  position: absolute;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.25) 60%, rgba(255, 255, 255, 0) 100%);
+  filter: blur(10px);
+  border-radius: 50%;
+  pointer-events: none;
+  /* 柔和的天空陰影投射在棋盤上 */
+  box-shadow: 0 40px 60px rgba(0, 0, 0, 0.25);
+  opacity: 0.65;
+}
+
+.cloud-1 {
+  width: 160px;
+  height: 60px;
+  top: 15%;
+  left: -180px;
+  animation: driftCloud1 65s infinite linear;
+}
+
+.cloud-2 {
+  width: 220px;
+  height: 80px;
+  top: 45%;
+  left: -240px;
+  animation: driftCloud2 80s infinite linear;
+  opacity: 0.45;
+}
+
+.cloud-3 {
+  width: 130px;
+  height: 50px;
+  top: 75%;
+  left: -150px;
+  animation: driftCloud3 50s infinite linear;
+  opacity: 0.55;
+}
+
+@keyframes driftCloud1 {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(100% + 1280px)); }
+}
+
+@keyframes driftCloud2 {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(100% + 1280px)); }
+}
+
+@keyframes driftCloud3 {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(100% + 1280px)); }
+}
+
+/* 🏔️ 3D 微縮沙盤展示盒與立體層次樣式 */
+.board-center {
+  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), 
+              inset 0 0 25px rgba(255, 255, 255, 0.03) !important;
+  background: rgba(5, 7, 18, 0.72) !important;
+  backdrop-filter: blur(16px) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transform-style: preserve-3d;
+}
+
+.sandtable-decorations {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.8;
+}
+
+.sandtable-content-overlay {
+  position: relative;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 🏔️ 雪山群山裝飾 (天冠山脈) */
+.sandtable-mountains {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 90%;
+  height: 55%;
+  gap: 12px;
+}
+
+.sandtable-mountain {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  transform-origin: bottom center;
+  filter: drop-shadow(0 0 10px rgba(0, 229, 255, 0.15));
+}
+
+/* 🏔️ 天冠主峰 (高峻白雪覆盖) */
+.mt-1 {
+  border-width: 0 45px 75px 45px;
+  border-color: transparent transparent rgba(0, 229, 255, 0.3) transparent;
+  position: relative;
+  z-index: 2;
+}
+.mt-1::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -15px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 15px 25px 15px;
+  border-color: transparent transparent #ffffff transparent; /* 雪山白雪山頭 */
+  opacity: 0.95;
+  filter: drop-shadow(0 0 5px #fff);
+}
+
+/* 🏔️ 神奧右側高峰 */
+.mt-2 {
+  border-width: 0 35px 55px 35px;
+  border-color: transparent transparent rgba(0, 229, 255, 0.2) transparent;
+  margin-left: -20px;
+  position: relative;
+  z-index: 1;
+}
+.mt-2::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -10px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 10px 17px 10px;
+  border-color: transparent transparent rgba(255, 255, 255, 0.8) transparent;
+}
+
+/* 🏔️ 神奧左側前峰 */
+.mt-3 {
+  border-width: 0 30px 45px 30px;
+  border-color: transparent transparent rgba(0, 229, 255, 0.25) transparent;
+  margin-right: -25px;
+  position: relative;
+  z-index: 3;
+}
+.mt-3::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -8px;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 8px 13px 8px;
+  border-color: transparent transparent rgba(255, 255, 255, 0.95) transparent;
+}
+
+/* 🌊 蔚藍流動海溝 (湖水與海洋) */
+.sandtable-sea {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 35%;
+  overflow: hidden;
+  border-radius: 0 0 18px 18px;
+}
+
+.sandtable-wave {
+  position: absolute;
+  bottom: 0;
+  left: -100%;
+  width: 300%;
+  height: 100%;
+  background-repeat: repeat-x;
+  transform-origin: center bottom;
+}
+
+.wave-back {
+  background-image: radial-gradient(circle at 50% 120%, transparent 60%, rgba(0, 229, 255, 0.2) 62%, rgba(0, 229, 255, 0) 65%);
+  background-size: 80px 40px;
+  animation: waveScrollBack 12s infinite linear;
+  z-index: 2;
+  opacity: 0.7;
+}
+
+.wave-front {
+  background-image: radial-gradient(circle at 50% 120%, transparent 58%, rgba(0, 229, 255, 0.3) 60%, rgba(0, 229, 255, 0) 64%);
+  background-size: 100px 50px;
+  animation: waveScrollFront 8s infinite linear;
+  z-index: 4;
+}
+
+@keyframes waveScrollFront {
+  0% { transform: translateX(0) scaleY(1); }
+  50% { transform: translateX(25%) scaleY(1.1); }
+  100% { transform: translateX(50%) scaleY(1); }
+}
+
+@keyframes waveScrollBack {
+  0% { transform: translateX(0) scaleY(1); }
+  50% { transform: translateX(-25%) scaleY(0.9); }
+  100% { transform: translateX(-50%) scaleY(1); }
+}
+
+/* 🏛️ 超古代遺跡神廟石柱 (Ancient Columns) */
+.sandtable-temple-pillars {
+  position: absolute;
+  top: 15%;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+}
+
+.temple-pillar {
+  width: 12px;
+  height: 45px;
+  background: linear-gradient(to bottom, rgba(213, 0, 249, 0.45) 0%, rgba(213, 0, 249, 0.1) 100%);
+  border: 1px solid rgba(213, 0, 249, 0.6);
+  border-radius: 2px;
+  position: relative;
+  animation: templePillarGlow 4s infinite ease-in-out alternate;
+}
+
+.temple-pillar::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -3px;
+  width: 16px;
+  height: 5px;
+  background: rgba(213, 0, 249, 0.8);
+  border-radius: 1px;
+  box-shadow: 0 0 8px rgba(213, 0, 249, 0.8);
+}
+
+@keyframes templePillarGlow {
+  0% { opacity: 0.4; filter: drop-shadow(0 0 1px rgba(213, 0, 249, 0.4)); }
+  100% { opacity: 0.95; filter: drop-shadow(0 0 10px rgba(213, 0, 249, 0.95)); }
+}
+
+/* 🌊 關都地區沙盤：櫻花與孤島燈塔 */
+.kanto-sea {
+  height: 40% !important;
+}
+
+.wave-kanto {
+  background-image: radial-gradient(circle at 50% 120%, transparent 60%, rgba(0, 229, 255, 0.25) 62%, rgba(0, 229, 255, 0) 65%);
+  background-size: 70px 30px;
+  animation: waveScrollFront 10s infinite linear;
+  width: 300%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+/* 🏝️ 關都綠意孤島 */
+.sandtable-island {
+  position: absolute;
+  bottom: 15%;
+  right: 18%;
+  width: 45px;
+  height: 25px;
+  background: radial-gradient(ellipse at center, #00e676 0%, #00a050 80%);
+  border-radius: 50%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5), 0 0 10px rgba(0, 230, 118, 0.3);
+  z-index: 3;
+}
+
+/* 🗼 枯葉港口發光燈塔 (Lighthouse) */
+.sandtable-lighthouse {
+  position: absolute;
+  bottom: 22%;
+  right: 25%;
+  width: 10px;
+  height: 35px;
+  background: linear-gradient(to top, #374151 0%, #9ca3af 80%, #ff1744 100%);
+  border-radius: 1px;
+  z-index: 4;
+}
+
+.lighthouse-light {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 12px 4px #fff, 0 0 20px 8px rgba(255, 235, 59, 0.5);
+  animation: lightSwivel 3s infinite linear;
+}
+
+@keyframes lightSwivel {
+  0% { transform: scale(0.8) opacity(0.5); }
+  50% { transform: scale(1.2) opacity(1); }
+  100% { transform: scale(0.8) opacity(0.5); }
+}
+
+/* 🌸 櫻花飄流 (Cherry Blossoms) */
+.sandtable-cherry-blossoms {
+  position: absolute;
+  top: 10%;
+  left: 0;
+  width: 100%;
+  height: 80%;
+}
+
+.blossom-leaf {
+  position: absolute;
+  font-size: 11px;
+  animation: blossomDrift 6s infinite linear;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.leaf-c1 {
+  left: 10%;
+  top: -10px;
+  animation-delay: 0s;
+}
+
+.leaf-c2 {
+  left: 45%;
+  top: -10px;
+  animation-delay: 3s;
+}
+
+@keyframes blossomDrift {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.95; }
+  90% { opacity: 0.95; }
+  100% { transform: translate(60px, 120px) rotate(360deg); opacity: 0; }
+}
+
+
+/* ==========================================================================
+   大師級：每個格子內置的地形動態圖章與粒子特效 (Cell Decorations & Particles)
+   ========================================================================== */
+
+.cell-decor {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  width: 32px;
+  height: 32px;
+  color: rgba(255, 255, 255, 0.08); /* 預設優雅半透明 */
+  pointer-events: none;
+  z-index: 1;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.decor-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 玩家停留時，格子插圖被極光霓虹點亮 */
+.board-cell.player-here .cell-decor {
+  color: rgba(255, 255, 255, 0.8) !important;
+  transform: scale(1.2) translateY(-2px);
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+/* 獨立的粒子疊加層 */
+.particle-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* 🍃 草原風吹綠葉落葉 */
+.decor-leaf {
+  position: absolute;
+  font-size: 8px;
+  opacity: 0;
+  animation: leafFloat 5s infinite linear;
+}
+
+.leaf-p1 {
+  top: 10%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.leaf-p2 {
+  top: 30%;
+  left: 50%;
+  animation-delay: 2.5s;
+}
+
+@keyframes leafFloat {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0; }
+  20% { opacity: 0.7; }
+  80% { opacity: 0.7; }
+  100% { transform: translate(15px, 15px) rotate(180deg); opacity: 0; }
+}
+
+/* 🌊 海洋上升氣泡 (Bubbles) */
+.decor-bubble {
+  position: absolute;
+  background: rgba(0, 229, 255, 0.4);
+  border: 1px solid rgba(0, 229, 255, 0.6);
+  border-radius: 50%;
+  bottom: 0;
+  opacity: 0;
+  animation: bubRise 4s infinite linear;
+}
+
+.bub-1 {
+  width: 4px;
+  height: 4px;
+  left: 20%;
+  animation-delay: 0s;
+}
+
+.bub-2 {
+  width: 6px;
+  height: 6px;
+  left: 60%;
+  animation-delay: 2s;
+}
+
+@keyframes bubRise {
+  0% { transform: translateY(0); opacity: 0; }
+  20% { opacity: 0.8; }
+  80% { opacity: 0.8; }
+  100% { transform: translateY(-30px); opacity: 0; }
+}
+
+/* ✨ 巨岩黃金星塵 (Stardust) */
+.decor-dust {
+  position: absolute;
+  font-size: 8px;
+  color: #ffd700;
+  opacity: 0;
+  animation: dustTwinkle 3s infinite alternate ease-in-out;
+}
+
+.dust-1 {
+  top: 15%;
+  right: 15%;
+}
+
+@keyframes dustTwinkle {
+  0% { opacity: 0.1; transform: scale(0.7); }
+  100% { opacity: 0.95; transform: scale(1.1) rotate(45deg); filter: drop-shadow(0 0 5px #ffd700); }
+}
+
+/* 🔥 火山極致熔岩粒子 (Lava Sparks) */
+.decor-spark {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: #ff3d00;
+  border-radius: 50%;
+  bottom: 5px;
+  opacity: 0;
+  animation: sparkRise 3.5s infinite linear;
+  box-shadow: 0 0 6px #ff3d00;
+}
+
+.spk-1 {
+  left: 30%;
+  animation-delay: 0s;
+}
+
+.spk-2 {
+  left: 70%;
+  animation-delay: 1.7s;
+}
+
+@keyframes sparkRise {
+  0% { transform: translateY(0) scale(1); opacity: 0; }
+  20% { opacity: 0.9; }
+  80% { opacity: 0.9; }
+  100% { transform: translateY(-25px) scale(0.6); opacity: 0; }
+}
+
+/* 💎 水晶發光 (Crystal) */
+.decor-crystal {
+  position: absolute;
+  font-size: 9px;
+  top: 10%;
+  left: 40%;
+  animation: crystalFlash 2.5s infinite alternate ease-in-out;
+}
+
+@keyframes crystalFlash {
+  0% { opacity: 0.2; transform: scale(0.8); }
+  100% { opacity: 0.95; transform: scale(1.1); filter: drop-shadow(0 0 8px #ff9100); }
+}
+
