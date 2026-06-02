@@ -1481,6 +1481,10 @@
   background-repeat: no-repeat;
   transition: opacity 1.0s cubic-bezier(0.25, 1, 0.25, 1);
   pointer-events: none;
+  /* 💎 像素渲染優化：防止瀏覽器雙線性插值虛化，使 16-bit 像素島嶼極致銳利乾淨 */
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
 }
 
 /* 🌸 Chapter 1 關都蔚藍啟航 3D 大作底圖 */
@@ -1725,12 +1729,13 @@
 }
 
 /* 🏔️ 中央磨砂玻璃展示看板，讓底圖的像素雪山完美透出 */
+/* 🏔️ 中央透明展示區，無任何毛玻璃虛化，讓底圖的像素雪山 100% 清晰透出 */
 .board-center {
-  background: rgba(5, 7, 18, 0.48) !important;
-  backdrop-filter: blur(8px) saturate(135%) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 
-              inset 0 0 20px rgba(255, 255, 255, 0.04) !important;
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: none !important;
   z-index: 1;
 }
 
