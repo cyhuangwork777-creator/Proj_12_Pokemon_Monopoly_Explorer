@@ -1672,7 +1672,9 @@ export const GAME_EVENTS = [
   { type: 'bonus', text: '大木博士送來了贊助！獲得 150 金幣。', amount: 150 },
   { type: 'penalty', text: '遇到火箭隊攔路打劫！失去 100 金幣。', amount: -100 },
   { type: 'item', text: '在路邊撿到了一顆「超級球」！', ballType: 'greatBall', count: 1 },
-  { type: 'item', text: '在草叢裡撿到了一瓶「傷藥」！', ballType: 'potion', count: 1 },
+  { type: 'item', text: '在草叢裡撿到了一瓶「普通傷藥」！', ballType: 'potion', count: 1 },
+  { type: 'item', text: '路過甘甜清泉，裝滿了一瓶「好傷藥」！', ballType: 'superPotion', count: 1 },
+  { type: 'item', text: '在超古代遺跡神木下，發現了珍貴的「全滿藥」！', ballType: 'maxPotion', count: 1 },
   { type: 'teleport', text: '踩到傳送機！被隨機傳送到地圖的另一端。', teleport: true },
   { type: 'lucky', text: '路上撿到發光的進化石，幸運賣掉獲得 200 金幣！', amount: 200 }
 ];

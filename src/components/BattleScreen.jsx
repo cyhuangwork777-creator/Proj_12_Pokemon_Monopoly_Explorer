@@ -69,26 +69,38 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
     }
   }, [isMyTurn, battleState, wildHp, partner.name, wildPokemon.name, wildPokemonAttack]);
 
-  // 使用回復傷藥 (用 useCallback 封裝)
-  const handleUsePotion = useCallback(() => {
-    if (!isMyTurn || battleState !== 'fighting' || bag.potion <= 0) return;
+  // 使用回復藥水 (用 useCallback 封裝，依類型回復百分比最大 HP)
+  const handleUsePotionType = useCallback((potionType) => {
+    const qty = bag[potionType] || 0;
+    if (!isMyTurn || battleState !== 'fighting' || qty <= 0) return;
     if (partner.hp >= partner.maxHp) {
       setBattleLog('夥伴寶可夢的體力已經是滿的了！');
       return;
     }
 
     setIsMyTurn(false);
-    updateBag('potion', -1);
+    updateBag(potionType, -1);
     
-    const actualHeal = Math.min(60, partner.maxHp - partner.hp);
+    let healPercent = 0.3;
+    let potionName = '普通傷藥';
+    if (potionType === 'superPotion') {
+      healPercent = 0.6;
+      potionName = '好傷藥';
+    } else if (potionType === 'maxPotion') {
+      healPercent = 1.0;
+      potionName = '全滿藥';
+    }
+
+    const healAmount = Math.round(partner.maxHp * healPercent);
+    const actualHeal = Math.min(healAmount, partner.maxHp - partner.hp);
     healPartner(actualHeal);
 
-    setBattleLog(`使用了「傷藥」！為 ${partner.name} 回復了 ${actualHeal} 點體力。`);
+    setBattleLog(`使用了「${potionName}」！為 ${partner.name} 回復了 ${actualHeal} 點體力 (${Math.round(healPercent * 100)}%)。`);
 
     setTimeout(() => {
       wildPokemonAttack();
     }, 1200);
-  }, [isMyTurn, battleState, bag.potion, partner.hp, partner.maxHp, partner.name, updateBag, healPartner, wildPokemonAttack]);
+  }, [isMyTurn, battleState, bag, partner.hp, partner.maxHp, partner.name, updateBag, healPartner, wildPokemonAttack]);
 
   return (
     <div className="overlay-screen">
@@ -211,15 +223,34 @@ const BattleScreen = ({ wildPokemon, partner, bag, onBattleEnd, updateBag, damag
               </div>
 
               {/* 使用藥水或道具 */}
-              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginTop: '8px' }}>使用輔助道具：</div>
-              <div className="action-buttons" style={{ gridTemplateColumns: '1fr' }}>
+              <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-secondary)', marginTop: '8px' }}>使用回復道具：</div>
+              <div className="action-buttons" style={{ gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
                 <button 
                   className="neon-button"
-                  style={{ borderColor: 'var(--neon-green)', color: 'var(--neon-green)', padding: '8px 12px', fontSize: '12px' }}
-                  disabled={!isMyTurn || bag.potion <= 0}
-                  onClick={handleUsePotion}
+                  style={{ borderColor: 'var(--neon-green)', color: 'var(--neon-green)', padding: '6px 4px', fontSize: '11px' }}
+                  disabled={!isMyTurn || (bag.potion || 0) <= 0}
+                  onClick={() => handleUsePotionType('potion')}
                 >
-                  🧪 傷藥回復 60 HP (剩餘 {bag.potion} 瓶)
+                  🧪 傷藥 (30%)<br />
+                  <span style={{ fontSize: '9px', opacity: 0.8 }}>餘 {(bag.potion || 0)} 瓶</span>
+                </button>
+                <button 
+                  className="neon-button"
+                  style={{ borderColor: '#ffeb3b', color: '#ffeb3b', padding: '6px 4px', fontSize: '11px' }}
+                  disabled={!isMyTurn || (bag.superPotion || 0) <= 0}
+                  onClick={() => handleUsePotionType('superPotion')}
+                >
+                  🧪 好傷藥 (60%)<br />
+                  <span style={{ fontSize: '9px', opacity: 0.8 }}>餘 {(bag.superPotion || 0)} 瓶</span>
+                </button>
+                <button 
+                  className="neon-button"
+                  style={{ borderColor: 'var(--neon-blue)', color: 'var(--neon-blue)', padding: '6px 4px', fontSize: '11px' }}
+                  disabled={!isMyTurn || (bag.maxPotion || 0) <= 0}
+                  onClick={() => handleUsePotionType('maxPotion')}
+                >
+                  🧪 全滿藥 (100%)<br />
+                  <span style={{ fontSize: '9px', opacity: 0.8 }}>餘 {(bag.maxPotion || 0)} 瓶</span>
                 </button>
               </div>
 

@@ -147,6 +147,8 @@ function App() {
     greatBall: 2,
     ultraBall: 0,
     potion: 2,
+    superPotion: 0,
+    maxPotion: 0,
     shipTicket: 0,
     fireStone: 0,
     thunderStone: 0,
@@ -857,7 +859,13 @@ function App() {
       if (saveData.gold !== undefined) setGold(saveData.gold);
       if (saveData.steps !== undefined) setSteps(saveData.steps);
       if (saveData.playerPos !== undefined) setPlayerPos(saveData.playerPos);
-      if (saveData.bag !== undefined) setBag(saveData.bag);
+      if (saveData.bag !== undefined) {
+        setBag({
+          superPotion: 0,
+          maxPotion: 0,
+          ...saveData.bag
+        });
+      }
       if (saveData.caughtIds !== undefined) setCaughtIds(saveData.caughtIds);
       if (saveData.selectedTrainer !== undefined) setSelectedTrainer(saveData.selectedTrainer);
       if (saveData.myPokemons !== undefined) setMyPokemons(saveData.myPokemons);
@@ -1557,7 +1565,19 @@ function App() {
                 setGold(300);
                 setSteps(0);
                 setPlayerPos(0);
-                setBag({ pokeball: 5, greatBall: 2, ultraBall: 0, potion: 2 });
+                setBag({
+                  pokeball: 5,
+                  greatBall: 2,
+                  ultraBall: 0,
+                  potion: 2,
+                  superPotion: 0,
+                  maxPotion: 0,
+                  shipTicket: 0,
+                  fireStone: 0,
+                  thunderStone: 0,
+                  waterStone: 0,
+                  kingRock: 0
+                });
                 setCaughtIds([]);
                 setPartner(null);
                 setActiveModal('partnerSelect');

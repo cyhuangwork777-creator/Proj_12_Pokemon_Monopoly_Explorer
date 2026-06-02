@@ -2,9 +2,23 @@ const PokeMart = ({ gold, bag, updateBag, updateGold, hasShipLicense, currentCha
   const shopItems = [
     {
       key: 'potion',
-      name: '回復傷藥',
-      desc: '在對戰中能為出戰夥伴回復 60 點體力值。',
-      price: 80,
+      name: '普通傷藥',
+      desc: '在對戰中能為出戰夥伴回復最大 HP 的 30%。',
+      price: 100,
+      icon: '🧪'
+    },
+    {
+      key: 'superPotion',
+      name: '好傷藥',
+      desc: '在對戰中能為出戰夥伴回復最大 HP 的 60%。',
+      price: 250,
+      icon: '🧪'
+    },
+    {
+      key: 'maxPotion',
+      name: '全滿藥',
+      desc: '在對戰中能為出戰夥伴 100% 完整回復體力值。',
+      price: 400,
       icon: '🧪'
     }
   ];
