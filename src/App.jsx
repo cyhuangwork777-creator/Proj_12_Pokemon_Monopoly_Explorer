@@ -481,6 +481,78 @@ function App() {
 
       setRemainingSteps((prev) => prev - 1);
 
+      // 🏠 大氣培育屋背景走步經驗值累加與自動升級/進化演算法
+      setDaycarePokemon(prevPoke => {
+        if (!prevPoke) return null;
+        
+        let newExp = prevPoke.exp + 10;
+        let newLevel = prevPoke.level;
+        let newMaxExp = prevPoke.maxExp;
+        let newMaxHp = prevPoke.maxHp;
+        let newHp = prevPoke.hp;
+        let newAtk = prevPoke.atk;
+        let evolvedId = prevPoke.id;
+        let evolvedName = prevPoke.name;
+        let evolvedType = prevPoke.type;
+        let evolvedSprite = prevPoke.sprite;
+        let evolvedSkills = prevPoke.skills;
+        let evolvedEvolvesTo = prevPoke.evolvesTo;
+        let evolvedEvolveLevel = prevPoke.evolveLevel;
+
+        let hasLeveledUp = false;
+        let hasEvolved = false;
+
+        // 迴圈處理可能連升多級的情況
+        while (newExp >= newMaxExp) {
+          newExp -= newMaxExp;
+          newLevel += 1;
+          newMaxExp = Math.round(newMaxExp * 1.2);
+          newMaxHp += 30;
+          newHp = newMaxHp; // 培育屋升級時貼心回滿 HP！
+          newAtk += 6;
+          hasLeveledUp = true;
+
+          // 🌟 貼心加入培育屋背景自動進化檢查！
+          if (evolvedEvolvesTo && newLevel >= evolvedEvolveLevel) {
+            const evolvedBase = POKEMON_DATABASE.find(p => p.id === evolvedEvolvesTo);
+            if (evolvedBase) {
+              evolvedId = evolvedBase.id;
+              evolvedName = evolvedBase.name;
+              evolvedType = evolvedBase.type;
+              evolvedSprite = evolvedBase.sprite;
+              evolvedSkills = evolvedBase.skills;
+              evolvedEvolvesTo = evolvedBase.evolvesTo;
+              evolvedEvolveLevel = evolvedBase.evolveLevel;
+              hasEvolved = true;
+            }
+          }
+        }
+
+        // 我們可以使用 console.log 在後台記錄培育進度，不干擾主畫面
+        if (hasEvolved) {
+          console.log(`🏠 培育屋喜訊：您的寄養夥伴成功進化為了「${evolvedName}」(Lv.${newLevel})！`);
+        } else if (hasLeveledUp) {
+          console.log(`🏠 培育屋喜訊：您的寄養夥伴「${evolvedName}」等級提升至 Lv.${newLevel}！`);
+        }
+
+        return {
+          ...prevPoke,
+          id: evolvedId,
+          name: evolvedName,
+          type: evolvedType,
+          sprite: evolvedSprite,
+          skills: evolvedSkills,
+          evolvesTo: evolvedEvolvesTo,
+          evolveLevel: evolvedEvolveLevel,
+          level: newLevel,
+          exp: newExp,
+          maxExp: newMaxExp,
+          maxHp: newMaxHp,
+          hp: newHp,
+          atk: newAtk
+        };
+      });
+
       // 當 remainingSteps 在此週期為 1 時，代表走完這步即抵達終點
       if (remainingSteps === 1) {
         // 延遲 550ms，給予瀏覽器與 React 充足時間將棋子繪製到最後一格，並走完平滑彈跳動畫後，才觸發事件視窗
