@@ -877,8 +877,41 @@
    多槽位存取檔樣式 (Multi-Slot Save/Load Modal Styles)
    ========================================================================== */
 .save-load-card {
-  max-width: 650px;
+  width: 80vw !important;
+  height: 82vh !important;
+  max-width: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  background: linear-gradient(135deg, rgba(15, 20, 38, 0.97) 0%, rgba(5, 7, 18, 0.99) 100%) !important;
+  border: 2px solid rgba(0, 210, 255, 0.25) !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 
+              0 0 35px rgba(0, 210, 255, 0.15) !important;
+  border-radius: 28px !important;
+  padding: 30px 34px !important;
   animation: slide-in 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* 存檔卡片大屏高顏值動畫與懸停呼吸 */
+.save-load-card .slot-item {
+  box-shadow: 0 6px 15px rgba(0,0,0,0.45) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1) !important;
+}
+
+.save-load-card .slot-item:hover {
+  transform: translateY(-4px) scale(1.008) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.6), 
+              0 0 12px currentColor !important; /* 邊框自適應發光 */
+}
+
+/* 覆蓋/載入動作按鈕大屏電競化 */
+.save-load-card button.neon-button {
+  padding: 10px 18px !important;
+  font-size: 13.5px !important;
+  font-weight: 900 !important;
+  border-radius: 10px !important;
+  transition: all 0.25s ease !important;
 }
 
 .slots-container::-webkit-scrollbar {

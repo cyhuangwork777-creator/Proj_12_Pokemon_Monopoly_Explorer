@@ -1774,26 +1774,26 @@ function App() {
 
       {/* 9. 多槽位存取檔 Overlay */}
       {saveLoadType && (
-        <div className="overlay-screen" style={{ background: 'rgba(5, 7, 18, 0.92)', zIndex: 1100 }}>
-          <div className="screen-card glass-panel save-load-card" style={{ maxWidth: '650px', padding: '30px' }}>
-            <div className="pixel-title" style={{ color: saveLoadType === 'saveSelect' ? 'var(--neon-green)' : 'var(--neon-yellow)', fontSize: '24px' }}>
+        <div className="overlay-screen" style={{ background: 'rgba(5, 7, 18, 0.93)', zIndex: 1100 }}>
+          <div className="screen-card glass-panel save-load-card" style={{ padding: '30px' }}>
+            <div className="pixel-title" style={{ color: saveLoadType === 'saveSelect' ? 'var(--neon-green)' : 'var(--neon-yellow)', fontSize: '26px' }}>
               {saveLoadType === 'saveSelect' ? '💾 儲存遊戲進度' : '📂 載入遊戲進度'}
             </div>
-            <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '25px', textAlign: 'center' }}>
+            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '20px', textAlign: 'center', fontWeight: 600 }}>
               {saveLoadType === 'saveSelect' 
                 ? '請選擇一個手動存檔槽位來保存您當前的冒險成果，這會避免任何背景自動覆蓋。' 
                 : '請選擇一個歷史手動槽位或歷史存檔來還原您之前的精彩冒險旅程。'}
             </p>
-
-            <div className="slots-container" style={{ display: 'flex', flexDirection: 'column', gap: '15px', width: '100%', maxHeight: '420px', overflowY: 'auto', paddingRight: '5px' }}>
+ 
+            <div className="slots-container" style={{ display: 'flex', flexDirection: 'column', gap: '18px', width: '100%', flexGrow: 1, overflowY: 'auto', paddingRight: '6px', marginBottom: '15px' }}>
               {['slot_1', 'slot_2', 'slot_3'].map((slotId) => {
                 const info = getSlotInfo(slotId, saveTrigger);
                 const isOccupied = !!info;
                 const trainerColor = info?.selectedTrainer?.color || 'var(--text-muted)';
                 const borderStyle = isOccupied 
-                  ? { borderColor: trainerColor, boxShadow: `0 0 10px ${trainerColor}30` } 
+                  ? { borderColor: trainerColor, boxShadow: `0 0 15px ${trainerColor}40` } 
                   : { borderColor: 'rgba(255,255,255,0.06)' };
-
+ 
                 return (
                   <div 
                     key={slotId} 
@@ -1801,41 +1801,41 @@ function App() {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      padding: '15px 20px',
-                      borderRadius: '12px',
+                      padding: '24px 30px', /* 顯著增加 padding，原為 15px 20px */
+                      borderRadius: '16px',
                       transition: 'all 0.3s ease',
-                      border: '1.5px solid',
-                      background: isOccupied ? 'rgba(255, 255, 255, 0.02)' : 'rgba(255, 255, 255, 0.01)',
+                      border: '1.8px solid',
+                      background: isOccupied ? 'rgba(255, 255, 255, 0.03)' : 'rgba(255, 255, 255, 0.01)',
                       position: 'relative',
                       ...borderStyle
                     }}
                   >
                     {/* 左側頭像 */}
-                    <div style={{ marginRight: '20px', flexShrink: 0 }}>
+                    <div style={{ marginRight: '24px', flexShrink: 0 }}>
                       {isOccupied && info.selectedTrainer?.avatar ? (
                         <img 
                           src={info.selectedTrainer.avatar} 
                           alt={info.selectedTrainer.name} 
                           style={{
-                            width: '56px',
-                            height: '56px',
+                            width: '76px', /* 顯著放大，原為 56px */
+                            height: '76px',
                             borderRadius: '50%',
-                            border: `2px solid ${trainerColor}`,
-                            boxShadow: `0 0 8px ${trainerColor}50`,
+                            border: `2.5px solid ${trainerColor}`,
+                            boxShadow: `0 0 12px ${trainerColor}60`,
                             objectFit: 'cover',
                             background: 'rgba(0,0,0,0.3)'
                           }}
                         />
                       ) : (
                         <div style={{
-                          width: '56px',
-                          height: '56px',
+                          width: '76px', /* 顯著放大，與有存檔時的 76px 對齊 */
+                          height: '76px',
                           borderRadius: '50%',
-                          border: '2px dashed rgba(255,255,255,0.15)',
+                          border: '2.5px dashed rgba(255,255,255,0.15)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
-                          fontSize: '24px',
+                          fontSize: '32px',
                           color: 'var(--text-muted)',
                           background: 'rgba(255,255,255,0.01)'
                         }}>
@@ -1843,27 +1843,27 @@ function App() {
                         </div>
                       )}
                     </div>
-
+ 
                     {/* 中間存檔中繼資訊 */}
                     <div style={{ flexGrow: 1, textAlign: 'left' }}>
-                      <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <div style={{ fontSize: '18px', fontWeight: 900, color: 'var(--text-primary)', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span>槽位 {slotId.replace('slot_', '')}</span>
                         {isOccupied && (
-                          <span style={{ fontSize: '11px', padding: '2px 6px', borderRadius: '4px', background: `${trainerColor}20`, color: trainerColor, border: `1px solid ${trainerColor}40` }}>
+                          <span style={{ fontSize: '11.5px', padding: '3px 8px', borderRadius: '4px', background: `${trainerColor}20`, color: trainerColor, border: `1px solid ${trainerColor}40`, fontWeight: 800 }}>
                             {info.selectedTrainer.name}
                           </span>
                         )}
                       </div>
                       
                       {isOccupied ? (
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 15px', fontSize: '11px', color: 'var(--text-secondary)' }}>
-                          <div>👤 訓練師: <span style={{ color: trainerColor, fontWeight: 700 }}>{info.selectedTrainer.name}</span></div>
-                          <div>💰 金幣: <span style={{ color: 'var(--neon-yellow)', fontWeight: 700 }}>{info.gold} G</span></div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px 20px', fontSize: '13px', color: 'var(--text-secondary)', fontWeight: 700 }}>
+                          <div>👤 訓練師: <span style={{ color: trainerColor, fontWeight: 800 }}>{info.selectedTrainer.name}</span></div>
+                          <div>💰 金幣: <span style={{ color: 'var(--neon-yellow)', fontWeight: 800 }}>{info.gold} G</span></div>
                           <div>🕒 時間: <span style={{ color: 'var(--text-muted)' }}>{new Date(info.saveTime).toLocaleString('zh-TW', { hour12: false })}</span></div>
-                          <div>📖 圖鑑: <span style={{ color: 'var(--neon-blue)', fontWeight: 700 }}>{info.caughtIds?.length || 1} / {POKEMON_DATABASE.length} 隻</span></div>
+                          <div>📖 圖鑑: <span style={{ color: 'var(--neon-blue)', fontWeight: 800 }}>{info.caughtIds?.length || 1} / {POKEMON_DATABASE.length} 隻</span></div>
                         </div>
                       ) : (
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', fontStyle: 'italic' }}>
+                        <div style={{ fontSize: '13.5px', color: 'var(--text-muted)', fontStyle: 'italic', fontWeight: 600 }}>
                           ✨ [ 槽位空白 - 可建立新進度 ]
                         </div>
                       )}
