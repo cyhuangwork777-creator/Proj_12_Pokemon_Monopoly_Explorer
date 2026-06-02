@@ -1556,68 +1556,275 @@
   100% { transform: translateX(calc(100% + 1280px)); }
 }
 
-/* 🏔️ 極限高對比 Glassmorphism 磨砂半透明格子 */
-.board-cell {
-  background: rgba(5, 7, 18, 0.42) !important;
-  backdrop-filter: blur(8px) saturate(125%) !important;
-  -webkit-backdrop-filter: blur(8px) saturate(125%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.65), 
-              inset 0 0 8px rgba(255, 255, 255, 0.01) !important;
+/* 🏔️ 大富翁4經典：灰色柏油馬路網與連貫車道線 */
+
+/* 橫向直道馬路 (頂部與底部) */
+.board-cell.road-horizontal {
+  background: linear-gradient(to bottom, #4b5563 0%, #2d3748 50%, #4b5563 100%) !important;
+  border-top: 2.5px solid #718096 !important;
+  border-bottom: 2.5px solid #718096 !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-radius: 0 !important;
+  box-shadow: inset 0 4px 10px rgba(0,0,0,0.5) !important;
+}
+/* 橫向黃色車道虛線 */
+.board-cell.road-horizontal::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+  height: 3px;
+  background-image: linear-gradient(to right, #ffd700 50%, transparent 50%);
+  background-size: 18px 3px;
+  opacity: 0.85;
   z-index: 1;
 }
 
-/* 停留時的霓虹 HSL 邊框與發光增強 */
+/* 縱向直道馬路 (左側與右側) */
+.board-cell.road-vertical {
+  background: linear-gradient(to right, #4b5563 0%, #2d3748 50%, #4b5563 100%) !important;
+  border-left: 2.5px solid #718096 !important;
+  border-right: 2.5px solid #718096 !important;
+  border-top: none !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+  box-shadow: inset 4px 0 10px rgba(0,0,0,0.5) !important;
+}
+/* 縱向黃色車道虛線 */
+.board-cell.road-vertical::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 3px;
+  height: 100%;
+  background-image: linear-gradient(to bottom, #ffd700 50%, transparent 50%);
+  background-size: 3px 18px;
+  opacity: 0.85;
+  z-index: 1;
+}
+
+/* 拐角馬路與轉彎斑馬線 */
+.board-cell.road-corner {
+  background: radial-gradient(circle at center, #3a4454 0%, #1e2530 100%) !important;
+  border: 3px solid #cbd5e1 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.65), inset 0 0 15px rgba(255,255,255,0.05) !important;
+}
+.board-cell.road-corner::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  width: 70%;
+  height: 70%;
+  background: repeating-linear-gradient(45deg, #ffffff, #ffffff 6px, transparent 6px, transparent 16px);
+  opacity: 0.35;
+  z-index: 1;
+  border-radius: 6px;
+}
+
+/* 停留時馬路霓虹發光特效 */
 .board-cell.player-here {
   border-color: var(--neon-blue) !important;
-  box-shadow: inset 0 0 15px rgba(0, 210, 255, 0.25), 
-              0 0 25px rgba(0, 210, 255, 0.55) !important;
-  background: rgba(5, 7, 18, 0.55) !important;
-  z-index: 3 !important;
+  box-shadow: inset 0 0 18px rgba(0, 210, 255, 0.4), 
+              0 0 25px rgba(0, 210, 255, 0.6) !important;
 }
 
-/* 各類型格子的高彩度 HSL 霓虹發光指示條 */
-.board-cell::before {
-  opacity: 0.85 !important;
-  box-shadow: 0 2px 8px currentColor;
+/* ✍️ 文字排版偏下微縮，完全避開上方立體建築 */
+.board-cell {
+  overflow: visible !important; /* 關鍵：允許 3D 建築高出格子邊界 */
+  justify-content: flex-end !important;
+  padding: 6px !important;
+  box-sizing: border-box;
 }
 
-/* ✍️ 高強度文字深影，保證在生動底圖上 100% 清晰可讀 */
+.cell-info {
+  margin-top: auto;
+  z-index: 3;
+}
+
 .cell-name {
   color: #ffffff !important;
   font-weight: 800 !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.98), 
                0 0 3px rgba(0, 0, 0, 0.95) !important;
-  font-size: 13px !important;
+  font-size: 11px !important;
 }
 
 .cell-desc {
-  color: rgba(255, 255, 255, 0.85) !important;
+  color: rgba(255, 255, 255, 0.9) !important;
   text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.98) !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
+  font-size: 9px !important;
+  z-index: 3;
+  margin-top: 1px;
 }
 
 .cell-type-tag {
+  font-size: 8px !important;
+  padding: 1px 4px !important;
+  border-radius: 3px !important;
+  font-weight: 900 !important;
   text-shadow: none !important;
 }
 
-/* 🏔️ 中央磨砂玻璃展示看板，讓底圖的雪山/燈塔完美透出 */
+/* 🏔️ 格子正上方拔地而起的 3D 像素立體建築圖章 (Z-index 自然遮擋) */
+.cell-building-sprite {
+  position: absolute;
+  bottom: 38px; /* 底部錨定在格子頂部，上半部凸出到空中 */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48px;
+  height: 58px;
+  z-index: 5;
+  pointer-events: none;
+  filter: drop-shadow(0 6px 5px rgba(0, 0, 0, 0.55));
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform-origin: bottom center;
+}
+
+/* 松林、高山、火山等大地景觀尺寸更高大 */
+.building-grass, .building-rock, .building-cave, .building-dojo {
+  width: 56px;
+  height: 70px;
+  bottom: 32px;
+}
+
+.building-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* 玩家停留在該格子時，立體建築被極光點亮放大 */
+.board-cell.player-here .cell-building-sprite {
+  transform: translateX(-50%) scale(1.15) translateY(-2px);
+  filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 12px currentColor);
+}
+
+/* 3D 立體彈出建築的經典 Q 版呼吸與浮動動畫 */
+.building-bounce {
+  animation: spriteBounce 3.5s infinite ease-in-out alternate;
+}
+.building-float {
+  animation: spriteFloat 4s infinite ease-in-out alternate;
+}
+
+@keyframes spriteBounce {
+  0% { transform: translateX(-50%) translateY(0); }
+  100% { transform: translateX(-50%) translateY(-3px); }
+}
+@keyframes spriteFloat {
+  0% { transform: translateX(-50%) translateY(0) rotate(-1deg); }
+  100% { transform: translateX(-50%) translateY(-4px) rotate(1deg); }
+}
+
+/* 🏔️ 中央磨砂玻璃展示看板，讓底圖的像素雪山完美透出 */
 .board-center {
-  background: rgba(5, 7, 18, 0.58) !important;
-  backdrop-filter: blur(10px) saturate(135%) !important;
+  background: rgba(5, 7, 18, 0.48) !important;
+  backdrop-filter: blur(8px) saturate(135%) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.85), 
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.8), 
               inset 0 0 20px rgba(255, 255, 255, 0.04) !important;
   z-index: 1;
 }
 
-.sandtable-content-overlay {
-  z-index: 5;
+/* 🚗 大富翁4經典：Q 版敞篷卡丁小車車身與尾部排氣冒煙 */
+.player-token {
+  position: absolute !important;
+  bottom: 6px !important;
+  right: 6px !important;
+  width: 42px !important;
+  height: 42px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  z-index: 100 !important;
+  overflow: visible !important;
+}
+
+.kart-body {
+  position: relative;
   width: 100%;
   height: 100%;
+  background: linear-gradient(135deg, #ff1744 0%, #b71c1c 100%);
+  border: 1.5px solid #000;
+  border-radius: 8px 12px 6px 6px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.65);
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* 司機大頭貼 Badge */
+.kart-driver {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #000 !important;
+  object-fit: cover !important;
+  position: absolute;
+  top: 5px;
+  left: 9px;
+  z-index: 2;
+}
+
+/* 卡丁小車滾輪 */
+.kart-wheel {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: #111;
+  border: 1.5px solid #000;
+  border-radius: 50%;
+  bottom: -4px;
+  z-index: 1;
+}
+
+.wheel-front {
+  left: 6px;
+  animation: wheelSpin 0.25s infinite linear;
+}
+
+.wheel-back {
+  right: 6px;
+  animation: wheelSpin 0.25s infinite linear;
+}
+
+@keyframes wheelSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 尾部排氣管與冒煙 */
+.kart-exhaust {
+  position: absolute;
+  left: -8px;
+  bottom: 6px;
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 4px;
+}
+
+.gas-puff {
+  width: 4px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.puff-1 { animation: puffSmoke 0.8s infinite linear; }
+.puff-2 { animation: puffSmoke 0.8s infinite linear 0.4s; }
+
+@keyframes puffSmoke {
+  0% { transform: scale(0.6) translate(0, 0); opacity: 0.95; }
+  100% { transform: scale(1.6) translate(-14px, -8px); opacity: 0; }
 }
 
 /* ==========================================================================
@@ -1765,5 +1972,6 @@
   0% { opacity: 0.2; transform: scale(0.8); }
   100% { opacity: 0.95; transform: scale(1.2); filter: drop-shadow(0 0 8px #d500f9); }
 }
+
 
 
