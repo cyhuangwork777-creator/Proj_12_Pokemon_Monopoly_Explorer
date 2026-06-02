@@ -93,8 +93,20 @@
 }
 
 /* ==========================================================================
-   4x5 環形棋盤 (Monopoly-style Grid)
+   大氣棋盤相機裁剪容器 (Board Viewport & Camera Container)
    ========================================================================== */
+.board-viewport {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden; /* 電影級滾動鏡頭裁剪，隱藏外部內容 */
+  position: relative;
+  background: rgba(5, 7, 18, 0.4);
+  border: 1.5px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.85);
+  border-radius: 24px;
+}
+
+/* monopoly-style Grid 棋盤 */
 .board-wrapper {
   position: relative;
   display: grid;
@@ -102,11 +114,26 @@
   grid-template-rows: repeat(5, 1fr);
   gap: 8px;
   width: 100%;
-  aspect-ratio: 5 / 5;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 24px;
+  height: 100%;
   padding: 12px;
+  box-sizing: border-box;
+  transform-origin: center center;
+  transition: transform 0.8s cubic-bezier(0.25, 1, 0.25, 1); /* 電影級超平滑鏡頭挪移 */
+}
+
+/* 遊戲設計大師：第二篇章 8x8 外環高精細網格 */
+.board-wrapper.chapter-2 {
+  grid-template-columns: repeat(8, 1fr) !important;
+  grid-template-rows: repeat(8, 1fr) !important;
+  gap: 6px !important;
+  padding: 16px !important;
+}
+
+/* 遊戲設計大師：第二篇章中間控制區 6x6 奢華玻璃置中排版 */
+.board-wrapper.chapter-2 .board-center {
+  grid-column: 2 / 8 !important;
+  grid-row: 2 / 8 !important;
+  padding: 30px !important;
 }
 
 /* 棋盤格子 */
@@ -838,3 +865,592 @@
   background: rgba(156, 39, 176, 0.04) !important;
   box-shadow: 0 0 15px rgba(156, 39, 176, 0.2);
 }
+
+
+/* ==========================================================================
+   精美主畫面樣式 (Title Screen Styles)
+   ========================================================================== */
+.title-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+
+
+.title-screen-container {
+  position: relative;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.title-game-logo {
+  font-size: 64px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 0 15px rgba(255, 235, 59, 0.65), 0 0 35px rgba(255, 152, 0, 0.55), 0 0 70px rgba(255, 87, 34, 0.4);
+  margin: 0 0 15px 0;
+  letter-spacing: 6px;
+  animation: titleFloat 4s ease-in-out infinite alternate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  user-select: none;
+}
+
+.title-subtitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--neon-blue);
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.7), 0 0 20px rgba(0, 229, 255, 0.4);
+  letter-spacing: 8px;
+}
+
+.title-menu-box {
+  margin-top: 40px;
+  height: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.tap-to-start {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 0 10px rgba(0, 229, 255, 0.8), 0 0 20px rgba(0, 229, 255, 0.4);
+  cursor: pointer;
+  padding: 18px 36px;
+  border-radius: 40px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1.5px solid rgba(0, 229, 255, 0.25);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-block;
+  letter-spacing: 2px;
+}
+
+.tap-to-start:hover {
+  background: rgba(0, 229, 255, 0.12);
+  border-color: var(--neon-blue);
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+  transform: scale(1.06) translateY(-2px);
+}
+
+.title-buttons-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  align-items: center;
+  width: 100%;
+  max-width: 340px;
+}
+
+.title-action-btn {
+  width: 100%;
+  padding: 15px 28px;
+  font-size: 15px;
+  font-weight: 800;
+  border-radius: 12px;
+  border: 2px solid;
+  background: rgba(5, 7, 24, 0.75);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+  letter-spacing: 1px;
+}
+
+.title-action-btn:hover {
+  transform: translateY(-4px) scale(1.03);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.7);
+}
+
+.neon-btn-green {
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  text-shadow: 0 0 8px rgba(57, 255, 20, 0.5);
+}
+
+.neon-btn-green:hover {
+  background: rgba(57, 255, 20, 0.12);
+  box-shadow: 0 0 25px rgba(57, 255, 20, 0.45);
+}
+
+.neon-btn-yellow {
+  border-color: var(--neon-yellow);
+  color: var(--neon-yellow);
+  text-shadow: 0 0 8px rgba(255, 238, 0, 0.5);
+}
+
+.neon-btn-yellow:hover {
+  background: rgba(255, 238, 0, 0.12);
+  box-shadow: 0 0 25px rgba(255, 238, 0, 0.45);
+}
+
+.title-footer {
+  position: absolute;
+  bottom: 25px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  z-index: 5;
+  user-select: none;
+}
+
+@keyframes titleFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-8px); }
+}
+
+
+/* ==========================================================================
+   精美主畫面 layout 與全新非滿版 HQ 卡片佈局 (Title Screen Premium Layout)
+   ========================================================================== */
+.title-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #050712 !important;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column !important;
+  align-items: center;
+  justify-content: flex-start;
+  overflow: hidden;
+  padding: 0 !important;
+}
+
+/* 上半部：史詩對戰卡片容器 */
+.title-art-container {
+  width: 100%;
+  height: 52vh; /* 佔據畫面上半部約 52% */
+  overflow: hidden;
+  position: relative;
+  background: #000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  border-bottom: 3px solid rgba(0, 229, 255, 0.25); /* 霓虹亮青邊界線 */
+}
+
+/* 4K 熱血寶可夢對戰高清卡片 */
+.title-art-card {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 按比例裁剪不拉伸 */
+  /* 移除降暗的 filter，展示 100% 鮮豔奪目、極致清晰的原生對比度與高畫質 */
+  animation: artPan 25s ease-in-out infinite alternate; /* 微微的鏡頭移動效果 */
+}
+
+/* 下半部：深邃黑色控制區域 */
+.title-bottom-zone {
+  width: 100%;
+  height: 48vh; /* 佔據下半部 48% */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 20px 20px;
+  box-sizing: border-box;
+  background: radial-gradient(circle at center, #0b0e27 0%, #03040b 100%);
+  position: relative;
+  flex-grow: 1;
+  box-shadow: inset 0 10px 40px rgba(0, 0, 0, 0.95);
+}
+
+/* 微浮動主標題 - 璀璨黃金霓虹強光 */
+.title-game-logo {
+  font-size: 52px !important; /* 稍微縮小適應排版 */
+  font-weight: 900;
+  color: #ffffff !important;
+  text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 35px #ff8c00, 0 0 60px #ff4500 !important;
+  margin: 0 0 12px 0 !important;
+  letter-spacing: 10px !important;
+  animation: titleFloat 4s ease-in-out infinite alternate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  user-select: none;
+}
+
+/* 霓虹蔚藍副標題 */
+.title-subtitle {
+  font-size: 18px !important;
+  font-weight: 800;
+  color: #00e5ff !important;
+  text-shadow: 0 0 8px #00e5ff, 0 0 15px #00e5ff, 0 0 30px #0086ff !important;
+  letter-spacing: 8px !important;
+}
+
+/* 動態按鈕控制區高 */
+.title-menu-box {
+  margin-top: 20px !important;
+  height: 120px !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+/* 黃金電競霓虹 Tap to Start 按鈕 */
+.tap-to-start {
+  font-size: 16px !important;
+  font-weight: 800;
+  color: #ffd700 !important;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.6) !important;
+  cursor: pointer;
+  padding: 15px 36px !important;
+  border-radius: 40px;
+  background: rgba(255, 215, 0, 0.03) !important;
+  border: 2px solid #ffd700 !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: inline-block;
+  letter-spacing: 3px !important;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.2), inset 0 0 15px rgba(255, 215, 0, 0.1) !important;
+}
+
+.tap-to-start:hover {
+  background: rgba(255, 215, 0, 0.12) !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.5), 0 0 50px rgba(255, 215, 0, 0.2) !important;
+  text-shadow: 0 0 8px rgba(255, 255, 255, 0.8) !important;
+  transform: scale(1.06) translateY(-2px) !important;
+}
+
+/* 內嵌版底欄 */
+.title-footer-inline {
+  margin-top: auto;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  user-select: none;
+  opacity: 0.7;
+}
+
+/* 慢速鏡頭平移特效，增強 4K 插畫層次感 */
+@keyframes artPan {
+  0% { transform: scale(1.0) translate(0, 0); }
+  50% { transform: scale(1.05) translate(-1%, -1%); }
+  100% { transform: scale(1.0) translate(0, 0); }
+}
+
+
+/* ==========================================================================
+   遊戲設計大師：史詩級 8K 滿版背景與電影級羽化對比樣式 (Title Master Fullscreen)
+   ========================================================================== */
+
+/* 滿版背景原畫容器 */
+.title-background-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: #03040b;
+}
+
+/* 8K 超高清大亂鬥背景圖片 */
+.title-bg-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 滿版按比例裁剪不變形 */
+  filter: brightness(1.02) contrast(1.02); /* 微調亮度與對比度，呈現最完美的8K畫質 */
+  animation: artPan 30s ease-in-out infinite alternate; /* 電影級鏡頭緩慢移動 */
+}
+
+/* 電影級羽化漸層遮罩 (只羽化遮蓋中下部，確保上部原畫 100% 亮麗清晰) */
+.title-cinematic-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to top,
+    rgba(3, 4, 11, 0.98) 0%,      /* 最底部幾乎純黑，提供按鈕與版權極致對比 */
+    rgba(3, 4, 11, 0.70) 35%,     /* 中下部字體區保持深黑 */
+    rgba(3, 4, 11, 0.25) 65%,     /* 漸變羽化 */
+    rgba(3, 4, 11, 0.0) 90%       /* 最頂部完全透明，完全顯露 8K 熱血對決 */
+  );
+  z-index: 2;
+}
+
+/* 前置大廳 Flex 容器 */
+.title-lobby-container {
+  position: relative;
+  z-index: 10; /* 高於背景與遮罩 */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end; /* 將文字、標題與按鈕完美往下方黑色羽化區擺放 */
+  padding: 80px 20px 45px;
+  box-sizing: border-box;
+}
+
+/* 大廳專屬底欄 */
+.title-footer-lobby {
+  margin-top: 35px;
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 1.5px;
+  opacity: 0.65;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  user-select: none;
+}
+
+
+/* ==========================================================================
+   遊戲設計大師：頂級雙層氛圍環境光暈背景與 3D 浮動高清卡片 (Ambient Dual-Layer Studio)
+   ========================================================================== */
+
+/* 1. 底層：滿版電競氛圍環境光暈 (渲染極致霓虹光暈) */
+.title-ambient-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  filter: blur(40px) brightness(0.23) scale(1.12); /* 深度模糊與適度調暗，提取極致彩度 */
+  opacity: 0.88;
+  z-index: 1;
+  transform-origin: center;
+  animation: bgPulse 18s ease-in-out infinite alternate;
+}
+
+/* 2. 環境光暈重疊漸層，邊角微暈暗 (Vignette Overlay) */
+.title-ambient-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, transparent 20%, rgba(3, 4, 11, 0.88) 100%);
+  z-index: 2;
+}
+
+/* 3. 前置大廳容器 (Lobby Container) */
+.title-lobby-container {
+  position: relative;
+  z-index: 5; /* 高於背景與遮罩 */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column !important;
+  align-items: center;
+  justify-content: space-between !important; /* 將卡片推向頂部，將字體控制區推向底部，完全分離 */
+  padding: 35px 20px 25px !important;
+  box-sizing: border-box;
+}
+
+/* 4. 上半部：精美高清全明星大亂鬥海報卡片容器 */
+.title-poster-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 870px; /* 擴增 1.5 倍至 870px，畫面更具張力與飽滿感 */
+  aspect-ratio: 16 / 9; /* 完美的原生寬幅比例 */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.85);
+  border: 2px solid rgba(0, 229, 255, 0.35); /* 亮青霓虹邊框 */
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* 遊戲設計大師響應式調校：當瀏覽器高度較矮時，自適應收縮卡片大小，防範下方按鈕與文字被擠出螢幕外 */
+@media (max-height: 880px) {
+  .title-poster-wrapper {
+    max-width: 720px; /* 適當收縮卡片大小，維持極佳視覺平衡 */
+  }
+}
+@media (max-height: 720px) {
+  .title-poster-wrapper {
+    max-width: 580px; /* 進一步收縮，防止高度不足擠壓 */
+    margin-top: 5px;
+  }
+}
+@media (max-height: 600px) {
+  .title-poster-wrapper {
+    max-width: 450px; /* 極度矮小視窗下的安全尺寸 */
+    margin-top: 2px;
+  }
+}
+
+.title-poster-wrapper:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(255, 215, 0, 0.7); /* 懸浮時轉為黃金霓虹邊框 */
+  box-shadow: 0 20px 50px rgba(0, 229, 255, 0.3), 0 0 30px rgba(255, 215, 0, 0.25);
+}
+
+.title-poster-card {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 按完美比例呈現，不拉伸模糊 */
+}
+
+/* 5. 下半部：深黑控制區域，確保圖文徹底分離且完美對比 */
+.title-controls-zone {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 0;
+  z-index: 10;
+}
+
+/* 慢速環境光暈脈動 */
+@keyframes bgPulse {
+  0% { transform: scale(1.1) rotate(0deg); filter: blur(40px) brightness(0.20); }
+  50% { transform: scale(1.16) rotate(1.5deg); filter: blur(45px) brightness(0.26); }
+  100% { transform: scale(1.1) rotate(0deg); filter: blur(40px) brightness(0.20); }
+}
+
+
+/* ==========================================================================
+   遊戲設計大師：冒險控制中心 (獨立於側邊欄之骰子控制面板樣式)
+   ========================================================================== */
+.adventure-control-panel {
+  padding: 20px !important;
+  border-radius: 20px !important;
+  background: rgba(5, 7, 18, 0.65) !important;
+  border: 1.5px solid rgba(0, 210, 255, 0.25) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.65), 
+              0 0 15px rgba(0, 210, 255, 0.05),
+              inset 0 0 15px rgba(255, 255, 255, 0.02) !important;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-sizing: border-box;
+}
+
+.adventure-control-panel:hover {
+  border-color: rgba(0, 210, 255, 0.5) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(0, 210, 255, 0.15), 
+              0 0 25px rgba(0, 210, 255, 0.1),
+              inset 0 0 20px rgba(0, 210, 255, 0.05) !important;
+}
+
+.panel-title-pixel {
+  font-family: var(--font-pixel);
+  font-size: 13px !important;
+  font-weight: 800;
+  color: var(--neon-blue) !important;
+  text-shadow: 0 0 8px rgba(0, 210, 255, 0.6) !important;
+  letter-spacing: 2px !important;
+  user-select: none;
+  text-align: center;
+}
+
+.adventure-dice-box {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.roll-action-btn {
+  border-color: var(--neon-blue) !important;
+  color: var(--neon-blue) !important;
+  background: rgba(0, 210, 255, 0.03) !important;
+  font-weight: 800 !important;
+  letter-spacing: 1.5px !important;
+}
+
+.roll-action-btn:hover:not(:disabled) {
+  background: rgba(0, 210, 255, 0.12) !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 20px rgba(0, 210, 255, 0.4), 
+              inset 0 0 10px rgba(0, 210, 255, 0.1) !important;
+}
+
+
+/* ==========================================================================
+   遊戲設計大師：地圖正中央「雙大陸核心地標」徽章樣式
+   ========================================================================== */
+.map-core-landmark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 12px;
+  user-select: none;
+  animation: landmarkPulse 5s ease-in-out infinite alternate;
+  box-sizing: border-box;
+  padding: 10px;
+}
+
+.landmark-badge {
+  font-family: var(--font-pixel);
+  font-size: 11px !important;
+  font-weight: 900;
+  color: #ffd700 !important;
+  background: rgba(255, 215, 0, 0.08) !important;
+  border: 1px solid rgba(255, 215, 0, 0.35) !important;
+  padding: 3px 10px !important;
+  border-radius: 6px;
+  letter-spacing: 3px !important;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.2),
+              inset 0 0 8px rgba(255, 215, 0, 0.05) !important;
+}
+
+.landmark-title {
+  font-size: 24px !important;
+  font-weight: 900 !important;
+  margin: 4px 0 !important;
+  letter-spacing: 4px !important;
+  background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 50%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 4px 15px rgba(0, 0, 0, 0.8) !important;
+}
+
+.landmark-subtitle {
+  font-size: 12px !important;
+  color: var(--text-muted) !important;
+  letter-spacing: 1px !important;
+  line-height: 1.4 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
+  max-width: 190px;
+}
+
+@keyframes landmarkPulse {
+  0% { transform: scale(0.97); filter: brightness(0.9) drop-shadow(0 0 2px rgba(129, 140, 248, 0.1)); }
+  100% { transform: scale(1.02); filter: brightness(1.15) drop-shadow(0 0 15px rgba(129, 140, 248, 0.3)); }
+}
+

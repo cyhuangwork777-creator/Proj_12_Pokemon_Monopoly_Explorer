@@ -1,4 +1,4 @@
-const PokeMart = ({ gold, bag, updateBag, updateGold, onClose }) => {
+const PokeMart = ({ gold, bag, updateBag, updateGold, hasShipLicense, currentChapter, onClose }) => {
   const shopItems = [
     {
       key: 'potion',
@@ -8,6 +8,16 @@ const PokeMart = ({ gold, bag, updateBag, updateGold, onClose }) => {
       icon: '🧪'
     }
   ];
+
+  if (currentChapter === 1 && hasShipLicense) {
+    shopItems.push({
+      key: 'shipTicket',
+      name: '🎫 聖特安努號船票',
+      desc: '搭乘聖特安努號豪華郵輪遠航前往第二大陸的必備乘船憑證。',
+      price: 150,
+      icon: '🎫'
+    });
+  }
 
   const handleBuy = (item) => {
     if (gold < item.price) return;

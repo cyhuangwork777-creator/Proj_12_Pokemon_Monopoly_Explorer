@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const TrainingGym = ({ gold, partner, updateGold, trainPartner, handleLevelUp, onClose }) => {
+const TrainingGym = ({ gold, partner, bag, updateBag, updateGold, trainPartner, handleLevelUp, onBranchEvolve, onClose }) => {
   const [successMsg, setSuccessMsg] = useState('');
 
   const trainingOptions = [
@@ -49,7 +49,7 @@ const TrainingGym = ({ gold, partner, updateGold, trainPartner, handleLevelUp, o
 
   return (
     <div className="overlay-screen">
-      <div className="screen-card glass-panel" style={{ maxWidth: '520px' }}>
+      <div className="screen-card glass-panel" style={{ maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto' }}>
         <div className="panel-header">
           <span style={{ color: 'var(--neon-purple)' }}>🏋️ 寶可夢訓練場 (Training Gym)</span>
           <span className="shop-item-price">💰 {gold} G</span>
@@ -120,6 +120,125 @@ const TrainingGym = ({ gold, partner, updateGold, trainPartner, handleLevelUp, o
             </button>
           </div>
         </div>
+
+        {/* 伊布分支指定進化區 (Eevee Branch Evolution) */}
+        {partner.id === 133 && partner.level >= 20 && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(0, 210, 255, 0.08), rgba(156, 39, 176, 0.12))',
+            border: '1.5px solid var(--neon-blue)',
+            borderRadius: '14px',
+            padding: '16px',
+            marginBottom: '20px',
+            textAlign: 'left',
+            boxShadow: '0 0 15px rgba(0, 210, 255, 0.25)',
+            transition: 'all 0.3s ease'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{ fontWeight: 900, fontSize: '13px', color: 'var(--neon-blue)' }}>
+                🧬 伊布特殊分支指定進化
+              </span>
+              <span style={{ fontSize: '11px', color: 'var(--text-secondary)' }}>
+                需消耗對應屬性進化石
+              </span>
+            </div>
+            <p style={{ fontSize: '11px', color: 'var(--text-secondary)', lineHeight: '1.4', marginBottom: '12px' }}>
+              檢測到您的夥伴<b>伊布</b>已達 Lv.{partner.level}！請選擇您想讓牠進化成的屬性形態：
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {/* 水伊布 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(33, 150, 243, 0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>💧</span>
+                  <div style={{ fontSize: '12px' }}>
+                    <div style={{ fontWeight: 800, color: '#2196f3' }}>水伊布 (Vaporeon)</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>水屬性 • 擅長高額生命與特防</div>
+                  </div>
+                </div>
+                <button
+                  className="neon-button"
+                  style={{ 
+                    padding: '4px 10px', 
+                    fontSize: '11px',
+                    borderColor: (bag.waterStone > 0) ? '#2196f3' : 'rgba(255,255,255,0.1)',
+                    color: (bag.waterStone > 0) ? '#2196f3' : 'var(--text-muted)',
+                    background: (bag.waterStone > 0) ? 'rgba(33, 150, 243, 0.1)' : 'transparent',
+                    cursor: (bag.waterStone > 0) ? 'pointer' : 'not-allowed'
+                  }}
+                  disabled={!bag.waterStone || bag.waterStone <= 0}
+                  onClick={() => {
+                    updateBag('waterStone', -1);
+                    onBranchEvolve(134);
+                    onClose();
+                  }}
+                >
+                  {bag.waterStone > 0 ? '💧 使用水之石進化' : '💧 缺水之石 (0)'}
+                </button>
+              </div>
+
+              {/* 雷伊布 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 235, 59, 0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>⚡</span>
+                  <div style={{ fontSize: '12px' }}>
+                    <div style={{ fontWeight: 800, color: '#ffeb3b' }}>雷伊布 (Jolteon)</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>電屬性 • 擅長極速打擊與高額爆發</div>
+                  </div>
+                </div>
+                <button
+                  className="neon-button"
+                  style={{ 
+                    padding: '4px 10px', 
+                    fontSize: '11px',
+                    borderColor: (bag.thunderStone > 0) ? '#ffeb3b' : 'rgba(255,255,255,0.1)',
+                    color: (bag.thunderStone > 0) ? '#ffeb3b' : 'var(--text-muted)',
+                    background: (bag.thunderStone > 0) ? 'rgba(255, 235, 59, 0.1)' : 'transparent',
+                    cursor: (bag.thunderStone > 0) ? 'pointer' : 'not-allowed'
+                  }}
+                  disabled={!bag.thunderStone || bag.thunderStone <= 0}
+                  onClick={() => {
+                    updateBag('thunderStone', -1);
+                    onBranchEvolve(135);
+                    onClose();
+                  }}
+                >
+                  {bag.thunderStone > 0 ? '⚡ 使用雷之石進化' : '⚡ 缺雷之石 (0)'}
+                </button>
+              </div>
+
+              {/* 火伊布 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(0,0,0,0.2)', padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(255, 152, 0, 0.2)' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '20px' }}>🔥</span>
+                  <div style={{ fontSize: '12px' }}>
+                    <div style={{ fontWeight: 800, color: '#ff9800' }}>火伊布 (Flareon)</div>
+                    <div style={{ fontSize: '10px', color: 'var(--text-muted)' }}>火屬性 • 擅長狂暴破壞與物理重擊</div>
+                  </div>
+                </div>
+                <button
+                  className="neon-button"
+                  style={{ 
+                    padding: '4px 10px', 
+                    fontSize: '11px',
+                    borderColor: (bag.fireStone > 0) ? '#ff9800' : 'rgba(255,255,255,0.1)',
+                    color: (bag.fireStone > 0) ? '#ff9800' : 'var(--text-muted)',
+                    background: (bag.fireStone > 0) ? 'rgba(255, 152, 0, 0.1)' : 'transparent',
+                    cursor: (bag.fireStone > 0) ? 'pointer' : 'not-allowed'
+                  }}
+                  disabled={!bag.fireStone || bag.fireStone <= 0}
+                  onClick={() => {
+                    updateBag('fireStone', -1);
+                    onBranchEvolve(136);
+                    onClose();
+                  }}
+                >
+                  {bag.fireStone > 0 ? '🔥 使用火之石進化' : '🔥 缺火之石 (0)'}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        )}
 
         {/* 當前夥伴屬性展示 */}
         <div style={{ 
