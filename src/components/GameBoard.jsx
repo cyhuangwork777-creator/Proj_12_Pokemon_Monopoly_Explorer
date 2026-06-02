@@ -249,6 +249,50 @@ const renderCell3DBuilding = (cell) => {
           </svg>
         </div>
       );
+    case 'daycare':
+      return (
+        <div className="cell-building-sprite building-daycare">
+          <div className="particle-layer">
+            <span className="decor-heart animate-ping">❤️</span>
+          </div>
+          <svg viewBox="0 0 64 75" className="building-svg building-bounce">
+            {/* 溫馨像素風培育小木屋 */}
+            {/* 地基陰影 */}
+            <rect x="6" y="60" width="52" height="6" fill="rgba(0,0,0,0.3)" rx="3" />
+            {/* 小木屋身 */}
+            <rect x="12" y="26" width="40" height="34" fill="#a1887f" stroke="#374151" strokeWidth="2" />
+            {/* 溫馨橙黃色瓦屋頂 */}
+            <polygon points="32,6 6,26 58,26" fill="#ffb74d" stroke="#374151" strokeWidth="2" />
+            {/* 屋頂裝飾小愛心 */}
+            <path d="M32 18c-1.5-2-4-1.5-5 .5-.8-2-3.3-2.5-5-.5-1.2 1.5 0 4 5 7 5-3 6.2-5.5 5-7z" fill="#ff4081" stroke="#374151" strokeWidth="1" />
+            {/* 深木色大門與發光小窗 */}
+            <rect x="26" y="42" width="12" height="18" fill="#5d4037" stroke="#374151" strokeWidth="1.5" />
+            <rect x="16" y="34" width="8" height="8" fill="#fff8e1" stroke="#374151" strokeWidth="1" />
+            <rect x="40" y="34" width="8" height="8" fill="#fff8e1" stroke="#374151" strokeWidth="1" />
+          </svg>
+        </div>
+      );
+    case 'event':
+      return (
+        <div className="cell-building-sprite building-event">
+          <div className="particle-layer">
+            <span className="decor-dust dust-1">✨</span>
+          </div>
+          <svg viewBox="0 0 64 75" className="building-svg building-float">
+            {/* 經典像素風冒險命運問號寶箱 */}
+            {/* 地基陰影 */}
+            <rect x="8" y="58" width="48" height="6" fill="rgba(0,0,0,0.3)" rx="3" />
+            {/* 寶箱主體 */}
+            <rect x="12" y="24" width="40" height="34" fill="#9c27b0" stroke="#374151" strokeWidth="2.5" rx="3" />
+            {/* 金色邊框與鎖扣 */}
+            <rect x="12" y="24" width="40" height="6" fill="#ffd700" stroke="#374151" strokeWidth="1.5" />
+            <rect x="28" y="36" width="8" height="10" fill="#ffd700" stroke="#374151" strokeWidth="1.5" />
+            <circle cx="32" cy="41" r="2" fill="#ff1744" />
+            {/* 箱頂懸浮亮黃色問號 */}
+            <text x="32" y="16" fill="#ffd700" fontSize="20" fontWeight="900" textAnchor="middle" fontFamily="monospace" stroke="#374151" strokeWidth="1">?</text>
+          </svg>
+        </div>
+      );
     default:
       return null;
   }
